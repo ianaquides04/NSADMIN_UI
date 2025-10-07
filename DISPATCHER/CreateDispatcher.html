@@ -1,0 +1,191 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Dispatcher</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        /* Header */
+        .custom-header {
+            background-color: #283233;
+            color: #fff;
+        }
+
+        /* Button Styles */
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        /* Inputs */
+        .form-control, .form-select {
+            border-radius: 4px;
+            height: 45px;
+        }
+
+        /* Modal tweaks */
+        .modal-content {
+            border-radius: 6px;
+        }
+
+        .modal-body label {
+            font-weight: 600;
+        }
+
+        /* Dimmed effect */
+        .dimmed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dispatcher Modal -->
+    <div class="modal show d-block" id="dispatcherModal" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Create Dispatcher</h3>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    <form>
+                        <!-- Dispatcher -->
+                        <div class="mb-3">
+                            <label class="form-label">Select Dispatcher</label>
+                            <select class="form-select">
+                                <option value>--Select--</option>
+                                <option></option>
+                                <option></option>
+                            </select>
+                        </div>
+
+                        <!-- Contact Number -->
+                        <div class="mb-4">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="contactNumber" />
+                        </div>
+
+                        <!-- Footer buttons -->
+                        <div class="text-end">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Dispatcher?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="createRouteForm" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Contact number already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const saveBtn = document.getElementById("saveBtn");
+        const dispatcherModal = document.getElementById("dispatcherModal");
+        const contactInput = document.getElementById("contactNumber");
+
+        const verificationModalEl = document.getElementById("verificationModal");
+        const verificationModal = new bootstrap.Modal(verificationModalEl);
+
+        const saveConfirmModalEl = document.getElementById("saveConfirmModal");
+        const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl);
+
+        // Save button handler
+        saveBtn.addEventListener("click", function () {
+            const contactValue = contactInput.value.trim();
+
+            if (contactValue === ".") {
+                // Dim the dispatcher modal
+                dispatcherModal.classList.add("dimmed");
+
+                // Show verification modal
+                verificationModal.show();
+            } else {
+                // Proceed to confirmation modal
+                dispatcherModal.classList.remove("show", "d-block");
+                dispatcherModal.classList.add("d-none");
+                saveConfirmModal.show();
+            }
+        });
+
+        // Verification OK button
+        const verificationOkBtn = document.getElementById("verificationOkBtn");
+        verificationOkBtn.addEventListener("click", function () {
+            verificationModal.hide();
+
+            // Restore dispatcher modal from dimmed state
+            dispatcherModal.classList.remove("dimmed");
+        });
+
+        // Optional: Restore dispatcher modal if user cancels from save confirm modal
+        const saveConfirmCancelButton = document.querySelector('#saveConfirmModal .btn-outline-save');
+        const saveConfirmSaveButton = document.querySelector('#saveConfirmModal .btn-save');
+
+        saveConfirmCancelButton.addEventListener('click', () => {
+            saveConfirmModal.hide();
+            dispatcherModal.classList.remove("d-none");
+            dispatcherModal.classList.add("show", "d-block");
+        });
+
+        saveConfirmSaveButton.addEventListener('click', () => {
+            saveConfirmModal.hide();
+            dispatcherModal.classList.remove("d-none");
+            dispatcherModal.classList.add("show", "d-block");
+        });
+    </script>
+</body>
+</html>
