@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Location</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		body {
+			background-color: #f8f9fa;
+		}
+
+        .btn-delete {
+            background-color: #ff4141 !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+        .btn-outline-delete {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+	</style>
+</head>
+<body>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade show" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" style="display:block;" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Delete Location?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                    <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Force Delete Confirmation modal to show on page load
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        deleteModal.show();
+    </script>
+</body>
+</html>
