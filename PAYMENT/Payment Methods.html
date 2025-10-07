@@ -1,0 +1,202 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Method</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .modal-content {
+            border-radius: 6px;
+            border: none;
+        }
+        .modal-header {
+            background-color: #2f3b3e;
+            color: #fff;
+            border-bottom: none;
+            padding: 20px 24px;
+        }
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        textarea.form-control {
+            resize: none;
+            height: 120px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+        .status-label {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        /* Dimmed modal */
+        .dimmed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Method Modal -->
+    <div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Payment Method</h5>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <form id="paymentMethodForm" asp-action="SavePaymentMethod" method="post">
+                        <!-- Payment Method Name -->
+                        <div class="mb-3">
+                            <label for="PaymentMethodName" class="form-label">Payment Method Name</label>
+                            <input type="text" id="PaymentMethodName" name="PaymentMethodName" class="form-control">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="Description" class="form-label mb-0">Description</label>
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input me-2" type="checkbox" id="DisplayDescription" name="DisplayDescription">
+                                    <label class="form-check-label" for="DisplayDescription">Display Description</label>
+                                </div>
+                            </div>
+                            <textarea id="Description" name="Description" class="form-control"></textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4 d-flex align-items-center">
+                            <label class="status-label">Status:</label>
+                            <input class="form-check-input me-2" type="checkbox" id="Status" name="Status">
+                            <label class="form-check-label" for="Status">Active</label>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" id="openSaveConfirm" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Payment Method?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSaveBtn" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancelBtn" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Payment Method already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const paymentMethodModalEl = document.getElementById('paymentMethodModal');
+            const saveConfirmModalEl = document.getElementById('saveConfirmModal');
+            const verificationModalEl = document.getElementById('verificationModal');
+
+            const paymentMethodModal = new bootstrap.Modal(paymentMethodModalEl);
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl);
+            const verificationModal = new bootstrap.Modal(verificationModalEl);
+
+            const openSaveConfirmBtn = document.getElementById('openSaveConfirm');
+            const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+            const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+            const verificationOkBtn = document.getElementById('verificationOkBtn');
+            const paymentMethodNameInput = document.getElementById('PaymentMethodName');
+
+            // Show Payment Modal initially
+            paymentMethodModal.show();
+
+            // Save button logic
+            openSaveConfirmBtn.addEventListener('click', function () {
+                const inputValue = paymentMethodNameInput.value.trim();
+
+                if (inputValue === ".") {
+                    // Dim payment modal visually
+                    paymentMethodModalEl.classList.add("dimmed");
+
+                    // Show verification modal
+                    verificationModal.show();
+                } else {
+                    // Hide payment modal and show confirmation
+                    paymentMethodModal.hide();
+                    saveConfirmModal.show();
+                }
+            });
+
+            // Confirm Save: submit form
+            confirmSaveBtn.addEventListener('click', function () {
+                document.getElementById('paymentMethodForm').submit();
+                saveConfirmModal.hide();
+            });
+
+            // Cancel confirmation: show payment modal again
+            confirmCancelBtn.addEventListener('click', function () {
+                saveConfirmModal.hide();
+                paymentMethodModal.show();
+            });
+
+            // OK in verification modal: close and undim main modal
+            verificationOkBtn.addEventListener('click', function () {
+                verificationModal.hide();
+                paymentMethodModalEl.classList.remove("dimmed");
+            });
+        });
+    </script>
+</body>
+</html>
