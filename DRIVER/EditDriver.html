@@ -1,0 +1,209 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Driver</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        /* ... existing styles ... */
+        .custom-header {
+            background-color: #283233;
+            color: #fff;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .form-control, .form-select {
+            border-radius: 4px;
+            height: 45px;
+        }
+
+        .radio-box {
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            padding: 12px 15px;
+        }
+
+        .radio-label {
+            margin-left: 8px;
+        }
+
+        .modal-content {
+            border-radius: 6px;
+        }
+
+        .modal-body label {
+            font-weight: 600;
+        }
+
+        /* === Dim Effect === */
+        .modal.dimmed .modal-content {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Driver Modal -->
+    <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Update Driver</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form id="driverForm">
+                        <div class="mb-3">
+                            <label class="form-label">Select Driver</label>
+                            <select class="form-select">
+                                <option value>--Select--</option>
+                                <option></option>
+                                <option></option>
+                            </select>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">License Number</label>
+                                <input type="text" id="licenseInput" class="form-control mb-3" />
+
+                                <label class="form-label">Contact Number</label>
+                                <input type="text" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">License Type</label>
+                                <div class="radio-box mt-1">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="licenseType" id="pro">
+                                        <label class="form-check-label radio-label" for="pro">Pro</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="licenseType" id="nonpro">
+                                        <label class="form-check-label radio-label" for="nonpro">Non-Pro</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Driver?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: License Number already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const driverModalEl = document.getElementById('driverModal');
+        const driverModal = new bootstrap.Modal(driverModalEl);
+        const saveConfirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
+        const verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+
+        // Show Driver modal on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            driverModal.show();
+        });
+
+        document.getElementById("saveBtn").addEventListener("click", () => {
+            const licenseValue = document.getElementById("licenseInput").value.trim();
+
+            if (licenseValue === ".") {
+                // Dim the driver modal without hiding it
+                driverModalEl.classList.add("dimmed");
+
+                // Show the verification modal
+                verificationModal.show();
+            } else {
+                // Hide driver modal and show confirmation modal after hide completes
+                const modalInstance = bootstrap.Modal.getInstance(driverModalEl);
+                modalInstance.hide();
+
+                driverModalEl.addEventListener('hidden.bs.modal', () => {
+                    saveConfirmModal.show();
+                }, { once: true });
+            }
+        });
+
+        // When Save in Confirmation Modal
+        document.getElementById("btnConfirmSave").addEventListener("click", () => {
+            saveConfirmModal.hide();
+            console.log("Driver saved!");
+            driverModal.show();
+        });
+
+        // When Cancel in Confirmation Modal
+        document.getElementById("btnCancelSave").addEventListener("click", () => {
+            saveConfirmModal.hide();
+            driverModal.show();
+        });
+
+        // When OK is clicked in Verification Modal
+        document.getElementById("verificationOkBtn").addEventListener("click", () => {
+            verificationModal.hide();
+            driverModalEl.classList.remove("dimmed");
+        });
+    </script>
+</body>
+</html>
