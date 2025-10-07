@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Route</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .modal-header {
+            background-color: #2f3b3e;
+            color: #fff;
+        }
+        .upload-box {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 40px;
+            text-align: center;
+            color: #888;
+            cursor: pointer;
+        }
+        .upload-box i {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 8px;
+            color: #999;
+        }
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+        .radio-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 15px;
+        }
+        .radio-label {
+            margin-left: 5px;
+        }
+        /* Dimmed overlay for modal background */
+        .modal-dimmed {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Create Route Modal -->
+    <div class="modal fade show" id="updateRouteModal" tabindex="-1" aria-hidden="true" style="display:block;" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="updateRouteContent">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Route</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="updateRouteForm" asp-action="Create" method="post" enctype="multipart/form-data">
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label for="Name" class="form-label">Name</label>
+                            <input type="text" id="Name" name="Name" class="form-control">
+                        </div>
+
+                        <!-- Code -->
+                        <div class="mb-3">
+                            <label for="Code" class="form-label">Code</label>
+                            <input type="text" id="Code" name="Code" class="form-control">
+                        </div>
+
+                        <!-- Visual Map + Radio Buttons -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <label class="form-label mb-0">Visual Map</label>
+                                <div class="radio-inline">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="mapType" id="mapImage" value="image" checked>
+                                        <label class="form-check-label radio-label" for="mapImage">Image</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="mapType" id="mapLink" value="link">
+                                        <label class="form-check-label radio-label" for="mapLink">Link</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Default Upload Box -->
+                            <div id="uploadBoxWrapper">
+                                <label for="VisualMap" class="upload-box w-100">
+                                    <i class="bi bi-upload"></i>
+                                    <span>Upload a file</span>
+                                </label>
+                                <input type="text" id="VisualMap" name="VisualMap" class="d-none">
+                            </div>
+
+                            <!-- Link Textbox (hidden by default) -->
+                            <div id="linkBoxWrapper" class="d-none">
+                                <input type="text" id="VisualMapLink" name="VisualMapLink" class="form-control" placeholder="">
+                            </div>
+                        </div>
+
+                        <!-- Save + Cancel buttons -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Route?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="updateRouteForm" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Route Name already exist.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-save px-4" id="verificationOkBtn">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const updateModal = new bootstrap.Modal(document.getElementById('updateRouteModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        const confirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
+        const verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+
+        // Show Create Route on load
+        updateModal.show();
+
+        // Handle Save Button click
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            const nameValue = document.getElementById("Name").value.trim();
+			
+			// placeholder
+            if (nameValue === ".") {
+                document.getElementById("updateRouteContent").classList.add("modal-dimmed");
+                verificationModal.show();
+            } else {
+                updateModal.hide();
+                confirmModal.show();
+            }
+        });
+
+        // Restore Create Route modal when Ok is clicked in verification modal
+        document.getElementById("verificationOkBtn").addEventListener("click", function () {
+            verificationModal.hide();
+            document.getElementById("updateRouteContent").classList.remove("modal-dimmed");
+        });
+
+        // Radio toggle logic
+        document.querySelectorAll("input[name='mapType']").forEach(radio => {
+            radio.addEventListener("change", function () {
+                if (this.value === "image") {
+                    document.getElementById("uploadBoxWrapper").classList.remove("d-none");
+                    document.getElementById("linkBoxWrapper").classList.add("d-none");
+                } else {
+                    document.getElementById("uploadBoxWrapper").classList.add("d-none");
+                    document.getElementById("linkBoxWrapper").classList.remove("d-none");
+                }
+            });
+        });
+
+        // Cancel on Save Confirmation -> return to Create Route
+        document.querySelector("#saveConfirmModal .btn-outline-save").addEventListener("click", function () {
+            confirmModal.hide();
+            updateModal.show();
+        });
+    </script>
+</body>
+</html>
