@@ -1,0 +1,172 @@
+@model YourApp.Models.ShiftViewModel 
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Update Shifts</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="site.css" rel="stylesheet" />
+    <style>
+        .modal-header {
+            background-color: #283233;
+            color: #fff;
+        }
+        /* Button Styles */
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+        .time-input {
+            width: 60px;
+            display: inline-block;
+            text-align: center;
+        }
+        .time-separator {
+            font-size: 1.2rem;
+            margin: 0 4px;
+            vertical-align: middle;
+        }
+        /* Container for Start and End time side by side with labels on top */
+        .time-container {
+            display: flex;
+            justify-content: space-evenly;
+            gap: 0px; /* Space between Start and End Time */
+        }
+
+        .time-container .time-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Optional: Adjust label spacing to make it closer to the input */
+        label.form-label {
+            margin-bottom: 5px;  /* Reduce space between label and input */
+        }
+
+        .row.mb-3 .col-md-6 {
+            margin-bottom: 5px;  /* Adjust to reduce space */
+        }
+    </style>
+</head>
+<body>
+    <!-- Shifts Modal -->
+    <div class="modal fade show" id="shiftModal" tabindex="-1" aria-hidden="true" style="display:block;" data-bs-backdrop="static">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Shifts</h5>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Create" method="post" id="shiftForm">
+                        <!-- Shift Date -->
+                        <div class="mb-3">
+                            <label for="ShiftDate" class="form-label">Shift Date</label>
+                            <input type="date" id="ShiftDate" name="ShiftDate" class="form-control" />
+                        </div>
+
+                        <!-- Start and End Time -->
+                        <div class="mb-3">
+                            <div class="time-container">
+                                <!-- Start Time -->
+                                <div class="time-input-wrapper">
+                                    <label class="form-label" for="StartTime">Start Time</label>
+                                    <div class="start-time-container">
+                                        <input type="text" class="form-control d-inline time-input" id="StartHour" value="00">
+                                        <span class="time-separator">:</span>
+                                        <input type="text" class="form-control d-inline time-input" id="StartMinute" value="00">
+                                    </div>
+                                </div>
+                                <!-- End Time -->
+                                <div class="time-input-wrapper">
+                                    <label class="form-label" for="EndTime">End Time</label>
+                                    <div class="end-time-container">
+                                        <input type="text" class="form-control d-inline time-input" id="EndHour" value="00">
+                                        <span class="time-separator">:</span>
+                                        <input type="text" class="form-control d-inline time-input" id="EndMinute" value="00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="btnOpenSaveConfirm" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 ">Save Shift?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var shiftModalEl = document.getElementById('shiftModal');
+        var saveConfirmModalEl = document.getElementById('saveConfirmModal');
+
+        var shiftModal = new bootstrap.Modal(shiftModalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        var saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl);
+
+        // Show Shifts modal on load
+        shiftModal.show();
+
+        // Save button in Shifts modal
+        document.getElementById('btnOpenSaveConfirm').addEventListener('click', function () {
+            shiftModal.hide();
+            saveConfirmModal.show();
+        });
+
+        // Cancel in Save Confirmation modal
+        document.getElementById('btnCancelSave').addEventListener('click', function () {
+            saveConfirmModal.hide();
+            shiftModal.show();
+        });
+
+        // Save in Save Confirmation modal
+        document.getElementById('btnConfirmSave').addEventListener('click', function () {
+            document.getElementById('shiftForm').submit();
+        });
+    </script>
+</body>
+</html>
