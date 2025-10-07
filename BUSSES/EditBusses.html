@@ -1,0 +1,213 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Busses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header {
+            background-color: #283233;
+            color: #fff;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .form-control {
+            border-radius: 4px;
+            height: 45px;
+        }
+
+        .border {
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+        }
+
+        .radio-label {
+            margin-left: 8px;
+        }
+
+        .dimmed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Busses Modal -->
+    <div class="modal fade" id="bussesModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h4 class="modal-title">Update Bus</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="bussesForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Bus Name</label>
+                                <input type="text" id="busNameInput" class="form-control mb-3" />
+
+                                <label class="form-label">Plate Number</label>
+                                <input type="text" id="plateNumberInput" class="form-control mb-3" />
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label mb-0">Capacity</label>
+                                    <div class="form-check d-flex align-items-center ms-2">
+                                        <input type="checkbox" class="form-check-input me-2" id="notSpecified" />
+                                        <label for="notSpecified" class="form-check-label">Not Specified</label>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control mt-2" id="capacityInput" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="status" id="available">
+                                        <label class="form-check-label radio-label" for="available">Available</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="status" id="onRoute">
+                                        <label class="form-check-label radio-label" for="onRoute">On Route</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status" id="maintenance">
+                                        <label class="form-check-label radio-label" for="maintenance">Maintenance</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" id="cancelBtn" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Bus?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSaveBtn" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancelBtn" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Bus Name already exist.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bussesModalEl = document.getElementById('bussesModal');
+            const saveConfirmModalEl = document.getElementById('saveConfirmModal');
+            const verificationModalEl = document.getElementById('verificationModal');
+
+            const bussesModal = new bootstrap.Modal(bussesModalEl);
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl);
+            const verificationModal = new bootstrap.Modal(verificationModalEl);
+
+            const saveBtn = document.getElementById('saveBtn');
+            const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+            const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+            const verificationOkBtn = document.getElementById('verificationOkBtn');
+
+            const busNameInput = document.getElementById('busNameInput');
+
+            const notSpecifiedCheckbox = document.getElementById('notSpecified');
+            const capacityInput = document.getElementById('capacityInput');
+
+            // Show modal on load
+            bussesModal.show();
+
+            // Save button logic
+            saveBtn.addEventListener('click', () => {
+                const busName = busNameInput.value.trim();
+
+                if (busName === ".") {
+                    bussesModalEl.classList.add('dimmed');
+                    verificationModal.show();
+                } else {
+                    bussesModal.hide();
+                    saveConfirmModal.show();
+                }
+            });
+
+            // Verification OK button
+            verificationOkBtn.addEventListener('click', () => {
+                verificationModal.hide();
+                bussesModalEl.classList.remove('dimmed');
+            });
+
+            // Confirm Save
+            confirmSaveBtn.addEventListener('click', () => {
+                saveConfirmModal.hide();
+                bussesModal.show(); // Replace with actual submission logic if needed
+            });
+
+            // Confirm Cancel
+            confirmCancelBtn.addEventListener('click', () => {
+                saveConfirmModal.hide();
+                bussesModal.show();
+            });
+
+            // ✅ Disable/Enable Capacity input based on checkbox
+            notSpecifiedCheckbox.addEventListener('change', () => {
+                capacityInput.disabled = notSpecifiedCheckbox.checked;
+            });
+
+            // Optionally, disable capacity if already checked on load
+            capacityInput.disabled = notSpecifiedCheckbox.checked;
+        });
+    </script>
+</body>
+</html>
