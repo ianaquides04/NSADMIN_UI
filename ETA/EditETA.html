@@ -1,0 +1,163 @@
+@model YourApp.Models.LocationViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Estimated Time of Arrival (ETA)</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="site.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .modal-header {
+            background-color: #2f3b3e;
+            color: #fff;
+            border-bottom: none;
+        }
+        /* Button Styles */
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- ETA Modal -->
+    <div class="modal fade show" id="etaModal" tabindex="-1" aria-hidden="true" style="display:block;" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Estimated Time of Arrival (ETA)</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="etaForm" asp-action="SaveETA" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Route" class="form-label">Route</label>
+                                <select id="Route" name="Route" class="form-select">
+                                    <option value>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MinETA" class="form-label">Min. ETA</label>
+                                <input type="text" id="MinETA" name="MinETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Origin" class="form-label">Origin</label>
+                                <select id="Origin" name="Origin" class="form-select">
+                                    <option>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MaxETA" class="form-label">Max. ETA</label>
+                                <input type="text" id="MaxETA" name="MaxETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="Destination" class="form-label">Destination</label>
+                                <select id="Destination" name="Destination" class="form-select">
+                                    <option value>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div>
+                                    <label class="form-label d-block">Status</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+                                        <label class="form-check-label" for="Status">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save + Cancel -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save ETA?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="etaForm" class="btn btn-save text-white px-4" id="confirmSaveBtn">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="confirmCancelBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Force ETA modal to show
+        var etaModal = new bootstrap.Modal(document.getElementById('etaModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        etaModal.show();
+
+        // Save button triggers confirmation modal
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            var confirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
+            etaModal.hide();
+            confirmModal.show();
+
+            // Return to ETA modal if Save or Cancel clicked in confirmation
+            document.getElementById("confirmSaveBtn").onclick = function () {
+                confirmModal.hide();
+                etaModal.show();
+            };
+            document.getElementById("confirmCancelBtn").onclick = function () {
+                confirmModal.hide();
+                etaModal.show();
+            };
+        });
+    </script>
+</body>
+</html>
