@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Bus Fare</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
+
+    <style>
+        .modal-header {
+            background-color: #263238;
+            color: #fff;
+            border-bottom: none;
+        }
+        .modal-title {
+            font-size: 1.75rem;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .input-group-text {
+            background-color: #fff;
+            font-size: 1.25rem;
+        }
+
+        /* Button Styles */
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+        .modal-body {
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bus Fare Modal -->
+    <div class="modal fade" id="editBusFareModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Bus Fare</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="BusFare">Bus Fare</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number" step="0.01" min="0" class="form-control" id="BusFare" value="15.00" placeholder="0.00" oninput="validateDecimal(this)">
+                        </div>
+                    </div>
+
+                    <!-- Buttons consistent with layout reference -->
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Bus Fare?</h5>
+
+                <!-- Buttons consistent with layout reference -->
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="createRouteForm" class="btn btn-save text-white px-4" id="confirmSaveBtn">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="cancelSaveBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function validateDecimal(input) {
+            let val = input.value;
+            if (!/^\d*\.?\d*$/.test(val)) {
+                input.value = val.slice(0, -1);
+            }
+        }
+
+        document.getElementById("BusFare").addEventListener("blur", function () {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const editBusFareModal = new bootstrap.Modal(document.getElementById('editBusFareModal'));
+            const saveConfirmationModal = new bootstrap.Modal(document.getElementById('saveConfirmationModal'));
+
+            editBusFareModal.show();
+
+            document.getElementById("saveBtn").addEventListener("click", function () {
+                editBusFareModal.hide();
+                saveConfirmationModal.show();
+            });
+
+            document.getElementById("confirmSaveBtn").addEventListener("click", function () {
+                console.log("Bus fare saved!");
+                saveConfirmationModal.hide();
+                editBusFareModal.show();
+            });
+
+            document.getElementById("cancelSaveBtn").addEventListener("click", function () {
+                saveConfirmationModal.hide();
+                editBusFareModal.show();
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>
