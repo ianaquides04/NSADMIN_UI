@@ -1,0 +1,345 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Account</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/CreateAccount.css" rel="stylesheet" />
+    <style>
+        .custom-header {
+            background-color: #283233;
+            color: #fff;
+        }
+
+        .form-control, .form-select {
+            border-radius: 4px;
+            height: 45px;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .border {
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+        }
+
+        .radio-label {
+            margin-left: 8px;
+        }
+
+        /* Dimmed effect for modal content when verification is active */
+        .modal-dimmed {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Modal -->
+    <div class="modal show d-block" id="adminModal" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="adminContent">
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Update Account</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form id="accountForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="text" id="Email" class="form-control mb-3" />
+                                <label class="form-label">Password</label>
+                                <input type="text" id="Password" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Account Role</label>
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="driverRadio">
+                                        <label class="form-check-label radio-label" for="driverRadio">Driver</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="dispatcherRadio">
+                                        <label class="form-check-label radio-label" for="dispatcherRadio">Dispatcher</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="adminRadio" checked>
+                                        <label class="form-check-label radio-label" for="adminRadio">Admin</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4 cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Modal -->
+    <div class="modal d-none" id="driverModal" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="driverContent">
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Update Account</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="text" class="form-control mb-3" />
+                                <label class="form-label">Password</label>
+                                <input type="text" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Account Role</label>
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="driverRadio2" checked>
+                                        <label class="form-check-label radio-label" for="driverRadio2">Driver</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="dispatcherRadio2">
+                                        <label class="form-check-label radio-label" for="dispatcherRadio2">Dispatcher</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="adminRadio2">
+                                        <label class="form-check-label radio-label" for="adminRadio2">Admin</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Select Driver</label>
+                                <select class="form-select">
+                                    <option>-- Select --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <button type="button" class="btn btn-save text-white px-4 save-role-btn">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4 cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispatcher Modal -->
+    <div class="modal d-none" id="dispatcherModal" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="dispatcherContent">
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Update Account</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="text" class="form-control mb-3" />
+                                <label class="form-label">Password</label>
+                                <input type="text" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Account Role</label>
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="driverRadio3">
+                                        <label class="form-check-label radio-label" for="driverRadio3">Driver</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="dispatcherRadio3" checked>
+                                        <label class="form-check-label radio-label" for="dispatcherRadio3">Dispatcher</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input role-radio" type="radio" name="role" id="adminRadio3">
+                                        <label class="form-check-label radio-label" for="adminRadio3">Admin</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Select Dispatcher</label>
+                                <select class="form-select">
+                                    <option>-- Select --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <div class="d-flex justify-content-end gap-3 mt-4">
+                                <button type="button" class="btn btn-save text-white px-4 save-role-btn">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4 cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Account?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-save text-white px-4" id="btnConfirmSave">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="btnCancelSave">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Account already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const roleRadios = document.querySelectorAll('.role-radio');
+        const adminModal = document.getElementById("adminModal");
+        const driverModal = document.getElementById("driverModal");
+        const dispatcherModal = document.getElementById("dispatcherModal");
+        const saveConfirmModal = new bootstrap.Modal(document.getElementById("saveConfirmModal"));
+        const verificationModal = new bootstrap.Modal(document.getElementById("verificationModal"));
+
+        let currentModal = adminModal;
+        let currentModalContent = document.getElementById("adminContent");
+
+        function showModal(modalToShow, contentEl) {
+            [adminModal, driverModal, dispatcherModal].forEach(modal => {
+                modal.classList.add("d-none");
+                modal.classList.remove("show", "d-block");
+            });
+            modalToShow.classList.remove("d-none");
+            modalToShow.classList.add("show", "d-block");
+            currentModal = modalToShow;
+            currentModalContent = contentEl;
+        }
+
+        roleRadios.forEach(radio => {
+            radio.addEventListener("change", function () {
+                if (this.id.includes("admin")) {
+                    showModal(adminModal, document.getElementById("adminContent"));
+                    document.getElementById("adminRadio").checked = true;
+                } else if (this.id.includes("driver")) {
+                    showModal(driverModal, document.getElementById("driverContent"));
+                    document.getElementById("driverRadio2").checked = true;
+                } else if (this.id.includes("dispatcher")) {
+                    showModal(dispatcherModal, document.getElementById("dispatcherContent"));
+                    document.getElementById("dispatcherRadio3").checked = true;
+                }
+            });
+        });
+
+        // All save buttons in each modal
+        const saveButtons = document.querySelectorAll('#saveBtn, .save-role-btn');
+        saveButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const emailValue = document.getElementById("Email").value.trim();
+
+                if (emailValue === ".") {
+                    // Dim the current modal
+                    currentModalContent.classList.add("modal-dimmed");
+                    verificationModal.show();
+                } else {
+                    // Hide the current modal and show confirmation
+                    currentModal.classList.remove("show", "d-block");
+                    currentModal.classList.add("d-none");
+                    saveConfirmModal.show();
+                }
+            });
+        });
+
+        const saveConfirmSaveButton = document.getElementById('btnConfirmSave');
+        const saveConfirmCancelButton = document.getElementById('btnCancelSave');
+
+        saveConfirmSaveButton.addEventListener('click', () => {
+            // For demonstration, just hide confirmation and reopen the current modal
+            saveConfirmModal.hide();
+            showModal(currentModal, currentModalContent);
+        });
+
+        saveConfirmCancelButton.addEventListener('click', () => {
+            saveConfirmModal.hide();
+            showModal(currentModal, currentModalContent);
+        });
+
+        // OK button in verification modal: restore current modal
+        document.getElementById('verificationOkBtn').addEventListener('click', () => {
+            verificationModal.hide();
+            currentModalContent.classList.remove("modal-dimmed");
+        });
+
+        // Cancel buttons in the modals close everything
+        const cancelButtons = document.querySelectorAll('.cancel-btn');
+        cancelButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                [adminModal, driverModal, dispatcherModal].forEach(modal => {
+                    modal.classList.remove("show", "d-block");
+                    modal.classList.add("d-none");
+                });
+            });
+        });
+    </script>
+</body>
+</html>
