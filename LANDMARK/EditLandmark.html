@@ -1,0 +1,240 @@
+@model YourApp.Models.LandmarkViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Update Landmark</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="site.css" rel="stylesheet" />
+    <style>
+        .modal-dialog {
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-body {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background-color: #283233;
+            color: #fff;
+            padding-bottom: 10px;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        textarea.form-control {
+            resize: none;
+            height: 100px;
+        }
+
+        .status-label {
+            margin-right: 1px;
+        }
+
+        .modal-body .row {
+            margin-bottom: 10px;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Dim overlay */
+        .dimmed {
+            opacity: 0.25 !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Landmark Modal -->
+    <div class="modal fade show" id="landmarkModal" tabindex="-1" aria-hidden="true" style="display:block;" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Landmark</h5>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Create" method="post" id="landmarkForm">
+                        <div class="row">
+                            <!-- Left side -->
+                            <div class="col-md-6">
+                                <!-- Location -->
+                                <div class="mb-3">
+                                    <label for="Location" class="form-label">Location</label>
+                                    <select id="Location" name="Location" class="form-select">
+                                        <option selected disabled>--Select--</option>
+                                        <option></option>
+                                        <option></option>
+                                    </select>
+                                </div>
+
+                                <!-- Landmark Name -->
+                                <div class="mb-3">
+                                    <label for="LandmarkName" class="form-label">Landmark Name</label>
+                                    <input type="text" id="LandmarkName" name="LandmarkName" class="form-control" />
+                                </div>
+
+                                <!-- Longitude and Latitude -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Longitude" class="form-label">Longitude</label>
+                                        <input type="text" id="Longitude" name="Longitude" class="form-control" value="0.0" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Latitude" class="form-label">Latitude</label>
+                                        <input type="text" id="Latitude" name="Latitude" class="form-control" value="0.0" />
+                                    </div>
+                                </div>
+
+                                <!-- Distance -->
+                                <div class="mb-3">
+                                    <label for="Distance" class="form-label">Distance</label>
+                                    <input type="text" id="Distance" name="Distance" class="form-control" value="0.0"/>
+                                </div>
+                            </div>
+
+                            <!-- Right side (Map) -->
+                            <div class="col-md-6">
+                                <label class="form-label">Visual Map</label>
+                                <div class="map-placeholder"></div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3 mt-3">
+                            <label for="Description" class="form-label">Description</label>
+                            <textarea id="Description" name="Description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="Status" class="form-label status-label">Status:</label>
+                            <div class="form-check form-switch d-inline-block ms-2">
+                                <input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+                                <label class="form-check-label" for="Status">Active</label>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="btnOpenSaveConfirm" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Landmark?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Landmark already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const landmarkModalEl = document.getElementById('landmarkModal');
+        const saveConfirmModalEl = document.getElementById('saveConfirmModal');
+        const verificationModalEl = document.getElementById('verificationModal');
+
+        const landmarkModal = new bootstrap.Modal(landmarkModalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl);
+        const verificationModal = new bootstrap.Modal(verificationModalEl);
+
+        // Show Landmark modal on load
+        landmarkModal.show();
+
+        document.getElementById('btnOpenSaveConfirm').addEventListener('click', function () {
+            const landmarkName = document.getElementById('LandmarkName').value.trim();
+
+            if (landmarkName === ".") {
+                // Dim modal but don't hide
+                landmarkModalEl.classList.add('dimmed');
+                verificationModal.show();
+            } else {
+                landmarkModal.hide();
+                saveConfirmModal.show();
+            }
+        });
+
+        document.getElementById('verificationOkBtn').addEventListener('click', function () {
+            verificationModal.hide();
+            landmarkModalEl.classList.remove('dimmed');
+        });
+
+        document.getElementById('btnCancelSave').addEventListener('click', function () {
+            saveConfirmModal.hide();
+            landmarkModal.show();
+        });
+
+        document.getElementById('btnConfirmSave').addEventListener('click', function () {
+            document.getElementById('landmarkForm').submit();
+        });
+    </script>
+</body>
+</html>
