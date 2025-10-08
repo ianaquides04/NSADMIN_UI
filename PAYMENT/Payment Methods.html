@@ -27,9 +27,6 @@
             font-size: 1.8rem;
             font-weight: 600;
         }
-        .form-label {
-            font-weight: 600;
-        }
         textarea.form-control {
             resize: none;
             height: 120px;
@@ -57,10 +54,6 @@
         .btn-outline-save:hover {
             background-color: #e6f7f8 !important;
             color: #1cb5bd !important;
-        }
-        .status-label {
-            font-weight: 600;
-            margin-right: 10px;
         }
 
         /* Dimmed modal */
@@ -99,11 +92,13 @@
                         </div>
 
                         <!-- Status -->
-                        <div class="mb-4 d-flex align-items-center">
-                            <label class="status-label">Status:</label>
-                            <input class="form-check-input me-2" type="checkbox" id="Status" name="Status">
-                            <label class="form-check-label" for="Status">Active</label>
-                        </div>
+						<div class="mb-4">
+							<label for="Status" class="form-label">Status:</label>
+							<div class="form-check form-switch d-inline-block ms-2">
+								<input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+								<label class="form-check-label" for="Status">Active</label>
+							</div>
+						</div>
 
                         <!-- Buttons -->
                         <div class="d-flex justify-content-end gap-2">
