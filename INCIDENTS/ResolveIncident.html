@@ -1,0 +1,153 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolve Incidents</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
+    <style>
+        .modal-header {
+            background-color: #2e383a;
+            color: white;
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+        }
+
+        .form-label {
+            font-size: 1.1rem;
+        }
+
+        textarea {
+            resize: none;
+            height: 220px;
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .modal-footer {
+            border-top: none;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            padding-bottom: 1rem;
+        }
+
+        .modal-dialog {
+            max-width: 600px;
+        }
+
+        /* Align buttons with the textarea width */
+        .button-section {
+            padding: 0 2rem 2rem 2rem;
+        }
+        .button-section .btn {
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Resolve Incident Modal -->
+    <div class="modal fade" id="resolveIncidentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Resolve Incidents</h5>
+                </div>
+
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label for="notes" class="form-label mb-0">Notes</label>
+                        <div class="form-check d-flex align-items-center gap-1">
+                            <input class="form-check-input" type="checkbox" id="markResolved">
+                            <label class="form-check-label" for="markResolved">Mark as resolved</label>
+                        </div>
+                    </div>
+
+                    <textarea id="notes" class="form-control"></textarea>
+                </div>
+
+                <div class="button-section d-flex justify-content-end gap-2">
+                    <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Report?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSaveBtn" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancelBtn" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const resolveIncidentModal = new bootstrap.Modal(document.getElementById('resolveIncidentModal'));
+            const saveConfirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
+            const saveBtn = document.getElementById('saveBtn');
+
+            // Show Resolve Incident modal on launch
+            resolveIncidentModal.show();
+
+            // When pressing Save → show confirmation modal
+            saveBtn.addEventListener('click', () => {
+                resolveIncidentModal.hide();
+                saveConfirmModal.show();
+            });
+
+            // When pressing Save or Cancel in confirmation → go back to main modal
+            document.querySelectorAll('#saveConfirmModal .btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    saveConfirmModal.hide();
+                    resolveIncidentModal.show();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

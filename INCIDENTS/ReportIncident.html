@@ -1,0 +1,165 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Incidents</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .modal-header {
+            background-color: #2f3b3e;
+            color: #fff;
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+        }
+
+        .form-label {
+            color: #2f3b3e;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        textarea.form-control {
+            resize: none;
+            height: 120px;
+        }
+
+        .btn-save {
+            background-color: #1cb5bd !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+        .btn-outline-save {
+            color: #1cb5bd !important;
+            border: 1px solid #1cb5bd !important;
+            background-color: #fff !important;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+        .text-end button {
+            min-width: 90px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Report Incident Modal -->
+    <div class="modal fade" id="reportIncidentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Incidents</h5>
+                </div>
+
+                <div class="modal-body px-4 pt-3 pb-0">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Trip ID</label>
+                            <input type="text" class="form-control" id="TripId" name="TripId">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Bus</label>
+                            <input type="text" class="form-control" id="Bus" name="Bus">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Driver</label>
+                            <input type="text" class="form-control" id="Driver" name="Driver">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Incident Type</label>
+                            <select class="form-select" id="IncidentType" name="IncidentType">
+                                <option value>--Select--</option>
+                                <option>Delay</option>
+                                <option>Accident</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="Description" name="Description"></textarea>
+                    </div>
+
+                    <div class="text-end d-flex justify-content-end gap-2 pb-3">
+                        <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Report?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSaveBtn" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancelBtn" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const reportModal = new bootstrap.Modal(document.getElementById('reportIncidentModal'));
+        const confirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
+
+        reportModal.show();
+
+        const saveBtn = document.getElementById('saveBtn');
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+        saveBtn.addEventListener('click', () => {
+            reportModal.hide();
+            confirmModal.show();
+        });
+
+        confirmSaveBtn.addEventListener('click', () => {
+            confirmModal.hide();
+            reportModal.show();
+        });
+
+        confirmCancelBtn.addEventListener('click', () => {
+            confirmModal.hide();
+            reportModal.show();
+        });
+    </script>
+
+</body>
+</html>
