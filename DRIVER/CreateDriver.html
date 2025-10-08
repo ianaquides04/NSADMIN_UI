@@ -9,7 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="~/css/site.css" rel="stylesheet" />
     <style>
-        /* ... existing styles ... */
         .custom-header {
             background-color: #283233;
             color: #fff;
@@ -83,8 +82,16 @@
                 <div class="modal-body">
                     <form id="driverForm">
                         <div class="mb-3">
-                            <label class="form-label">First & Last Name</label>
-                            <input type="text" class="form-control"/>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control"/>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row mb-3">
@@ -166,13 +173,9 @@
             const licenseValue = document.getElementById("licenseInput").value.trim();
 
             if (licenseValue === ".") {
-                // Dim the driver modal without hiding it
                 driverModalEl.classList.add("dimmed");
-
-                // Show the verification modal
                 verificationModal.show();
             } else {
-                // Hide driver modal and show confirmation modal after hide completes
                 const modalInstance = bootstrap.Modal.getInstance(driverModalEl);
                 modalInstance.hide();
 
@@ -182,20 +185,17 @@
             }
         });
 
-        // When Save in Confirmation Modal
         document.getElementById("btnConfirmSave").addEventListener("click", () => {
             saveConfirmModal.hide();
             console.log("Driver saved!");
             driverModal.show();
         });
 
-        // When Cancel in Confirmation Modal
         document.getElementById("btnCancelSave").addEventListener("click", () => {
             saveConfirmModal.hide();
             driverModal.show();
         });
 
-        // When OK is clicked in Verification Modal
         document.getElementById("verificationOkBtn").addEventListener("click", () => {
             verificationModal.hide();
             driverModalEl.classList.remove("dimmed");
