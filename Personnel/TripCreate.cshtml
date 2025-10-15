@@ -1,0 +1,386 @@
+﻿@using NextStop_AdminMVC.Controllers.DataControllers
+<style>
+    /* Header */
+    .custom-header {
+        background-color: #283233;
+        color: #fff;
+    }
+
+    /* Button Styles */
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    /* Inputs */
+    .form-control,
+    .form-select {
+        border-radius: 4px;
+        height: 45px;
+        width: 750px;
+    }
+
+    /* Status box */
+    .border {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+    }
+
+    .radio-label {
+        margin-left: 8px;
+    }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+<div class="head-title">
+    <div class="left">
+        <h1>Personnel</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Personnel</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Personnel">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Shifts">Shift Management</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Shifts Assignments">Shift Assignments</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Trip Management</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Trip Records of  @ViewBag.Driver</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#tripCreateModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Create Trip</span>
+        </button>
+    </div>
+
+ @model NextStop_AdminMVC.Models.DataModels.TripCreateView
+ <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="TripRecords" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                # <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>Bus</th>
+                    <th>Route</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model.TripView != null && Model.TripView.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.TripView.Count; i++)
+                    {
+                        <tr>
+                            @* <td>@(i + 1)</td> *@
+                            <td>@Model.TripView[i].TripID</td>
+                            <td>@Model.TripView[i].PlateNo </td>
+                            <td>@Model.TripView[i].RouteName </td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" @* data-bs-toggle="modal" data-bs-target="#updateTripModal-@Model[i].Id" *@>
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                 <i class='bx bxs-x-square'></i>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="10" style="text-align: center;">No trip available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+@* Update Trip Modal *@
+@* @foreach (var trip in Model.TripView)
+{
+    <div class="modal fade" id="updateTripModal-@trip.TripID" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h4 class="modal-title">Update Trip</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="updateTripForm-@trip.TripID" asp-action="UpdateTrip" method="post">
+                        <input type="hidden" name="tripId" value="@trip.TripID" />
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-flex flex-column">
+                                <label class="form-label">Bus</label>
+                                <select class="form-select" name="bus" id="bus-@trip.TripID">
+                                    @if (Model.Busses != null && Model.Busses.Count > 0)
+                                    {
+                                        <option value="">-- Select --</option>
+                                        @foreach (var b in Model.Busses)
+                                        {
+                                            <option value="@b.Id" @(b.Id == trip.BusID ? "selected" : "")>@b.PlateNum</option>
+                                        }
+                                    }
+                                </select>
+
+                                <label class="form-label">Route</label>
+                                <select class="form-select" name="route" id="route-@trip.TripID">
+                                    @if (Model.Routes != null && Model.Routes.Count > 0)
+                                    {
+                                        <option value="">-- Select --</option>
+                                        @foreach (var r in Model.Routes)
+                                        {
+                                            <option value="@r.Id" @(r.Id == trip.RouteID ? "selected" : "")>@r.routeName</option>
+                                        }
+                                    }
+                                </select>
+
+                                <div class="d-flex justify-content-start gap-2 mt-4">
+                                    <button type="button" id="saveBtn-@trip.TripID" class="btn btn-save text-white px-4">Save</button>
+                                    <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+} *@
+
+@* Save Confirmation Modal (single, reused) *@
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Trip?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Trip Create Modal *@
+<div class="modal fade" id="tripCreateModal" tabindex="-1" aria-labelledby="shiftAssignModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h4 class="modal-title">Trip Management</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="tripCreateForm" asp-action="CreateTrip" method="post">
+                        <input type="hidden" name="shiftAssign" value="@ViewBag.AssignID" />
+                        <input type="hidden" name="driver" value="@ViewBag.Driver" />
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-flex flex-column">
+                                <div>
+                                    <label class="form-label">Bus</label>
+                                     <select class="form-select" name="bus" id="bus">
+                                    @if (Model.Busses != null && Model.Busses.Count > 0)
+                                        {
+                                            <option value="">-- Select --</option>
+                                        @foreach (var b in Model.Busses)
+                                            {
+                                               <option value="@b.Id">@b.PlateNum</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="">-- No available driver --</option>
+                                        }
+                                        </select>
+
+                                    <label class="form-label">Route</label>
+                                     <select class="form-select" name="route" id="route">
+                                    @if (Model.Routes != null && Model.Routes.Count > 0)
+                                        {
+                                            <option value="">-- Select --</option>
+                                        @foreach (var b in Model.Routes)
+                                            {
+                                               <option value="@b.Id">@b.routeName</option>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="">-- No available routes --</option>
+                                        }
+                                        </select>         
+                                </div>
+
+                                <div class="d-flex justify-content-start gap-2 mt-4">
+                                    <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                                    <button type="button" id="cancelBtn" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4 ">Save Trip?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                @* <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button> *@
+                <button type="submit" form="tripCreateForm" id="btnConfirmSave" class="btn btn-save text-white px-4" asp-controller="Personnel" asp-action="CreateTrip">Save</button>
+                <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Trip?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Get modal elements
+    var shiftAssignModalEl = document.getElementById('tripCreateModal');
+    var saveConfirmModalEl = document.getElementById('saveConfirmModal');
+    var deleteConfirmModalEl = document.getElementById('deleteConfirmModal');
+
+    // Initialize modals
+    var tripCreateModal = new bootstrap.Modal(shiftAssignModalEl, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    var saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    var deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalEl, {
+        backdrop: 'static',
+        keyboard: false
+    });
+
+    // Save button in Shift Assignment modal → open Save Confirmation modal
+    document.getElementById('saveBtn').addEventListener('click', function () {
+        tripCreateModal.hide();
+        // Small timeout for smooth transition
+        setTimeout(function () {
+            saveConfirmModal.show();
+        }, 300);
+    });
+
+    // Cancel button in Save Confirmation modal → close Save Confirm modal & reopen Shift modal
+    document.getElementById('btnCancelSave').addEventListener('click', function () {
+        saveConfirmModal.hide();
+        setTimeout(function () {
+            tripCreateModal.show();
+        }, 300);
+    });
+
+    // Optional: Delete confirmation animation (same pattern)
+    const deleteButtons = document.querySelectorAll(".btn-danger");
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", function () {
+            setTimeout(function () {
+                deleteConfirmModal.show();
+            }, 150);
+        });
+    });
+</script>
+
+@* <script>
+    // ===== UPDATE TRIP MODALS DYNAMIC =====
+    document.querySelectorAll('[id^="updateTripModal-"]').forEach(modalEl => {
+        const id = modalEl.id.split('-')[1];
+        const updateModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+        const confirmModal = document.getElementById('saveConfirmModal') ? new bootstrap.Modal(document.getElementById('saveConfirmModal'), { backdrop: 'static', keyboard: false }) : null;
+
+        const btnSave = document.getElementById('saveBtn-' + id);
+        const btnCancel = modalEl.querySelector('[data-bs-dismiss="modal"]');
+
+        if (btnSave) {
+            btnSave.addEventListener('click', () => {
+                updateModal.hide();
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    if (confirmModal) confirmModal.show();
+                }, { once: true });
+            });
+        }
+
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => updateModal.hide());
+        }
+
+        [modalEl].forEach(m =>
+            m.addEventListener('click', e => {
+                if (e.target === m) e.stopPropagation();
+            })
+        );
+    });
+</script> *@

@@ -1,0 +1,486 @@
+﻿<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .modal-header {
+        background-color: #2d3b3b;
+        color: white;
+    }
+
+    .modal-dialog {
+        max-width: 600px;
+    }
+
+    .form-label {
+        font-weight:;
+    }
+
+    .time-input {
+        width: 150px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .time-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .time-input-wrapper {
+        flex: 1;
+    }
+
+    /* Button Styles */
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+
+<div class="head-title">
+    <div class="left">
+        <h1>Operations</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Operations</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Schedule Setting</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Route Schedule</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Add schedule</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.RouteSchedule>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="SchedSet" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                Id <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="SchedSet" asp-route-sortOrder="@ViewData["NameSort"]">
+                                Route Name <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>Type</th>
+                    <th>Weekday</th>
+                    <th>Weekend</th>
+                    <th>Regular Time</th>
+                    <th>AM Time</th>
+                    <th>PM Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model[i].Id</td>
+                            <td>@Model[i].RouteName</td>
+                            <td>@Model[i].Type</td>
+                            <td>@Model[i].Weekday</td>
+                            <td>@Model[i].Weekend</td>
+                            <td>@Model[i].Time_Reg</td>
+                            <td>@Model[i].Time_AM</td>
+                            <td>@Model[i].Time_PM</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editScheduleModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No schedule available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+<form asp-action="AddSchedForm" method="post" id="schedForm">
+    @foreach (var sched in Model)
+    {
+        <!-- Update Schedule Modal -->
+        <div class="modal fade" id="editScheduleModal-@sched.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-sm">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Update Schedule (@sched.RouteName)</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editSchedForm-@sched.Id">
+                            <div class="mb-3">
+                                <label class="form-label">Route Name</label>
+                                <input type="text" class="form-control" value="@sched.RouteName" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type:</label>
+                                    <div class="border rounded p-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="type-@sched.Id" id="typeRegular-@sched.Id" @(sched.Type == "Regular" ? "checked" : "")>
+                                            <label class="form-check-label" for="typeRegular-@sched.Id">Regular</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="type-@sched.Id" id="typeSplit-@sched.Id" @(sched.Type == "Split" ? "checked" : "")>
+                                            <label class="form-check-label" for="typeSplit-@sched.Id">Split</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Week:</label>
+                                    <div class="border rounded p-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="weekday-@sched.Id" @(sched.Weekday ? "checked" : "")>
+                                            <label class="form-check-label" for="weekday-@sched.Id">Weekday</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="weekend-@sched.Id" @(sched.Weekend ? "checked" : "")>
+                                            <label class="form-check-label" for="weekend-@sched.Id">Weekend</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-end d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-save text-white px-4">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Save Confirmation Modal -->
+        <div class="modal fade" id="saveConfirmModal-@sched.Id" tabindex="-1" aria-labelledby="saveConfirmLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+                <div class="modal-content p-4 text-start">
+                    <h5 class="mb-4">Update Schedule?</h5>
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="button" id="confirmSave-@sched.Id" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" id="confirmCancel-@sched.Id" class="btn btn-outline-save px-4">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</form>
+
+<form asp-action="UpdateSchedForm" method="post" id="UpschedForm">
+    <!-- Add Schedule Modal -->
+    <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-labelledby="addScheduleLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-sm">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="addScheduleLabel">Add Schedule</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- Route Name -->
+                    <div class="mb-3">
+                        <label class="form-label">Route Name</label>
+                        <input type="text" class="form-control" />
+                    </div>
+
+                    <div class="row">
+                        <!-- Type -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type:</label>
+                            <div class="border rounded p-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="type" id="typeRegular" value="Regular" checked>
+                                    <label class="form-check-label" for="typeRegular">Regular</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="type" id="typeSplit" value="Split">
+                                    <label class="form-check-label" for="typeSplit">Split</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Week:</label>
+                            <div class="border rounded p-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="weekday">
+                                    <label class="form-check-label" for="weekday">Weekday</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="weekend">
+                                    <label class="form-check-label" for="weekend">Weekend</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Time Inputs -->
+                <div class="mb-3">
+                    <div class="time-container d-flex justify-content-between">
+                        <!-- Regular Time -->
+                        <div class="time-input-wrapper">
+                            <label class="form-label" for="regularTime">Regular Time</label>
+                            <div class="start-time-container">
+                                <input type="time" class="form-control d-inline time-input" id="regularTime" name="regularTime" value="00:00">
+                            </div>
+                        </div>
+
+                        <!-- AM Time -->
+                        <div class="time-input-wrapper">
+                            <label class="form-label" for="amTime">AM Time</label>
+                            <div class="start-time-container">
+                                <input type="time" class="form-control d-inline time-input" id="amTime" name="amTime" value="00:00" disabled>
+                            </div>
+                        </div>
+
+                        <!-- PM Time -->
+                        <div class="time-input-wrapper">
+                            <label class="form-label" for="pmTime">PM Time</label>
+                            <div class="start-time-container">
+                                <input type="time" class="form-control d-inline time-input" id="pmTime" name="pmTime" value="00:00" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                    <!-- Buttons -->
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-labelledby="saveConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Schedule?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSave" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancel" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Schedule?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ===========================================
+         1. ADD SCHEDULE MODAL FIX
+         =========================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const addScheduleModalEl = document.getElementById('addScheduleModal');
+            const saveConfirmModalEl = document.getElementById('saveConfirmModal');
+
+            const addScheduleModal = new bootstrap.Modal(addScheduleModalEl, { backdrop: 'static', keyboard: false });
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, { backdrop: 'static', keyboard: false });
+
+            const typeRegular = document.getElementById("typeRegular");
+            const typeSplit = document.getElementById("typeSplit");
+
+            const regularTime = document.getElementById("regularTime");
+            const amTime = document.getElementById("amTime");
+            const pmTime = document.getElementById("pmTime");
+
+            function toggleTimeInputs() {
+                if (typeRegular.checked) {
+                    regularTime.disabled = false;
+                    amTime.disabled = true;
+                    pmTime.disabled = true;
+                } else {
+                    regularTime.disabled = true;
+                    amTime.disabled = false;
+                    pmTime.disabled = false;
+                }
+            }
+
+            typeRegular.addEventListener("change", toggleTimeInputs);
+            typeSplit.addEventListener("change", toggleTimeInputs);
+            toggleTimeInputs();
+
+            const saveBtn = document.getElementById('saveBtn');
+            const confirmSaveBtn = document.getElementById('confirmSave');
+            const confirmCancelBtn = document.getElementById('confirmCancel');
+
+            // Add Schedule: Open confirm modal
+            saveBtn.addEventListener('click', () => {
+                addScheduleModal.hide();
+                saveConfirmModal.show();
+            });
+
+            // Confirm Save -> Close confirm and reopen add modal
+            confirmSaveBtn.addEventListener('click', () => {
+                saveConfirmModal.hide();
+                addScheduleModal.show();
+            });
+
+            // Confirm Cancel -> Return to add modal
+            confirmCancelBtn.addEventListener('click', () => {
+                saveConfirmModal.hide();
+                addScheduleModal.show();
+            });
+        });
+    </script>
+
+    <!-- ===========================================
+         2. UPDATE SCHEDULE MODAL FIX
+         =========================================== -->
+    <script>
+        document.querySelectorAll('[id^="editScheduleModal-"]').forEach((modalEl) => {
+            const id = modalEl.id.split('-')[1];
+
+            const editSchedModalEl = document.getElementById('editScheduleModal-' + id);
+            const saveConfirmModalEl = document.getElementById('saveConfirmModal-' + id);
+
+            if (!editSchedModalEl || !saveConfirmModalEl) return;
+
+            const editSchedModal = new bootstrap.Modal(editSchedModalEl, { backdrop: 'static', keyboard: false });
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, { backdrop: 'static', keyboard: false });
+
+            const saveBtn = editSchedModalEl.querySelector('.btn-save');
+            const cancelBtn = editSchedModalEl.querySelector('.btn-outline-save');
+            const confirmSaveBtn = saveConfirmModalEl.querySelector('#confirmSave-' + id);
+            const confirmCancelBtn = saveConfirmModalEl.querySelector('#confirmCancel-' + id);
+
+            // Update -> Confirm
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    editSchedModal.hide();
+                    saveConfirmModal.show();
+                });
+            }
+
+            // Confirm Cancel -> Reopen Update
+            if (confirmCancelBtn) {
+                confirmCancelBtn.addEventListener('click', () => {
+                    saveConfirmModal.hide();
+                    editSchedModal.show();
+                });
+            }
+
+            // Confirm Save -> Close all
+            if (confirmSaveBtn) {
+                confirmSaveBtn.addEventListener('click', () => {
+                    saveConfirmModal.hide();
+                    // Add backend logic here if needed
+                });
+            }
+
+            // Cancel -> Close Update
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    editSchedModal.hide();
+                });
+            }
+        });
+    </script>
+
+    <!-- ===========================================
+         3. DELETE SCHEDULE MODAL FIX
+         =========================================== -->
+    <script>
+        const deleteConfirmModalEl = document.getElementById('deleteConfirmModal');
+        if (deleteConfirmModalEl) {
+            new bootstrap.Modal(deleteConfirmModalEl, { backdrop: 'static', keyboard: false });
+        }
+    </script>

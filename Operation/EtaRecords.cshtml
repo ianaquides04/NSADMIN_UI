@@ -1,0 +1,387 @@
+﻿<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .modal-header {
+        background-color: #2f3b3e;
+        color: #fff;
+        border-bottom: none;
+    }
+    /* Button Styles */
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+
+<div class="head-title">
+    <div class="left">
+        <h1>Operations</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Operations</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">ETA Records</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+
+    <div class="datalbl">
+        <asp:Label> <h5>ETA Records</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#etaModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Add ETA</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.EtaRecords>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Route</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Distance (KM)</th>
+                    <th>ETA:min (MIN)</th>
+                    <th>ETA:max (MIN)</th>
+                    <th>ETA:average (MIN)</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@Model[i].RouteName</td>
+                            <td>@Model[i].OriginStopName</td>
+                            <td>@Model[i].DestinationStopName</td>
+                            <td>@Model[i].DistanceKm</td>
+                            <td>@Model[i].MinETA</td>
+                            <td>@Model[i].MaxETA</td>
+                            <td>@Model[i].AvgETA</td>
+                            <td>@Model[i].Status</td>
+                            <td>@Model[i].LastUpdated</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm"@*  data-bs-toggle="modal" data-bs-target="#updateETAModal-@Model[i].Id" *@>
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="11" style="text-align: center;">No ETA record available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+    <!-- Update ETA Modal -->
+@* @foreach (var eta in Model)
+{
+    <div class="modal fade" id="updateETAModal-@eta.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Estimated Time of Arrival (ETA)</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="etaForm-@eta.Id" asp-action="SaveETA" method="post">
+                        <input type="hidden" name="Id" value="@eta.Id" />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Route" class="form-label">Route</label>
+                                <select id="Route" name="Route" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MinETA" class="form-label">Min. ETA</label>
+                                <input type="text" id="MinETA" name="MinETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Origin" class="form-label">Origin</label>
+                                <select id="Origin" name="Origin" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MaxETA" class="form-label">Max. ETA</label>
+                                <input type="text" id="MaxETA" name="MaxETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="Destination" class="form-label">Destination</label>
+                                <select id="Destination" name="Destination" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div>
+                                    <label class="form-label d-block">Status</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+                                        <label class="form-check-label" for="Status">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save + Cancel -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-save text-white px-4" data-bs-toggle="modal" data-bs-target="#saveConfirmModal-@eta.Id">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal (Dynamic ID) -->
+    <div class="modal fade" id="saveConfirmModal-@eta.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save ETA?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="etaForm-@eta.Id" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div> *@
+}
+
+    <!-- ETA Modal -->
+<div class="modal fade" id="etaModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Estimated Time of Arrival (ETA)</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="etaForm" asp-action="SaveETA" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Route" class="form-label">Route</label>
+                                <select id="Route" name="Route" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MinETA" class="form-label">Min. ETA</label>
+                                <input type="text" id="MinETA" name="MinETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Origin" class="form-label">Origin</label>
+                                <select id="Origin" name="Origin" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="MaxETA" class="form-label">Max. ETA</label>
+                                <input type="text" id="MaxETA" name="MaxETA" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="Destination" class="form-label">Destination</label>
+                                <select id="Destination" name="Destination" class="form-select">
+                                    <option selected>--Select--</option>
+                                    <option></option>
+                                    <option></option>
+                                    <option></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div>
+                                    <label class="form-label d-block">Status</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+                                        <label class="form-check-label" for="Status">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save + Cancel -->
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save ETA?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="etaForm" class="btn btn-save text-white px-4" id="confirmSaveBtn">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="confirmCancelBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete ETA?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // ----- Add ETA -----
+        const etaModalEl = document.getElementById("etaModal");
+        const saveConfirmModalEl = document.getElementById("saveConfirmModal");
+
+        // Enforce static backdrop and disable keyboard close
+        etaModalEl.setAttribute("data-bs-backdrop", "static");
+        etaModalEl.setAttribute("data-bs-keyboard", "false");
+        saveConfirmModalEl.setAttribute("data-bs-backdrop", "static");
+        saveConfirmModalEl.setAttribute("data-bs-keyboard", "false");
+
+        const etaModal = new bootstrap.Modal(etaModalEl, { backdrop: "static", keyboard: false });
+        const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, { backdrop: "static", keyboard: false });
+
+        const saveBtn = document.getElementById("saveBtn");
+        const confirmSaveBtn = document.getElementById("confirmSaveBtn");
+        const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+
+        // Prevent background click closing
+        etaModalEl.addEventListener("click", e => e.stopPropagation());
+        saveConfirmModalEl.addEventListener("click", e => e.stopPropagation());
+
+        // Save in ETA modal
+        saveBtn.addEventListener("click", function () {
+            etaModal.hide();
+            saveConfirmModal.show();
+        });
+
+        // Confirm Save
+        confirmSaveBtn.addEventListener("click", function () {
+            document.getElementById("etaForm").submit();
+            saveConfirmModal.hide();
+        });
+
+        // Cancel in Save Confirm
+        confirmCancelBtn.addEventListener("click", function () {
+            saveConfirmModal.hide();
+            etaModal.show();
+        });
+
+
+        // ----- Delete ETA -----
+        const deleteConfirmModalEl = document.getElementById("deleteConfirmModal");
+
+        deleteConfirmModalEl.setAttribute("data-bs-backdrop", "static");
+        deleteConfirmModalEl.setAttribute("data-bs-keyboard", "false");
+
+        const deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalEl, { backdrop: "static", keyboard: false });
+
+        // Prevent accidental background close
+        deleteConfirmModalEl.addEventListener("click", e => e.stopPropagation());
+    });
+</script>

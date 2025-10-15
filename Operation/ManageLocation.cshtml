@@ -1,0 +1,375 @@
+﻿@{
+    ViewData["Title"] = "ManageLocation";
+}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .modal-header {
+        background-color: #2f3b3e;
+        color: #fff;
+    }
+
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    /* Dimmed effect */
+    .modal-dimmed {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+<div class="head-title">
+    <div class="left">
+        <h1>Operations</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Operations</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Manage Locations</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Locations</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createLocationModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Create location</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.Locations>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="ManageLocation" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                # <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="ManageLocation" asp-route-sortOrder="@ViewData["NameSort"]">
+                                Name <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model[i].Id</td>
+                            <td>@Model[i].locationName</td>
+                            <td>@Model[i].latitude</td>
+                            <td>@Model[i].longitude</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateLocationModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No locations available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+<!-- Update Location Modal -->
+@foreach (var location in Model)
+{
+    <div class="modal fade" id="updateLocationModal-@location.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="updateLocationContent-@location.Id">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Location</h5>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Update" method="post" id="updateLocationForm-@location.Id">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="Name" class="form-label">Name</label>
+                                    <input type="text" id="Name" name="Name" class="form-control" value="@location.locationName" />
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Longitude" class="form-label">Longitude</label>
+                                        <input type="text" id="Longitude" name="Longitude" class="form-control" value="@location.longitude" />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Latitude" class="form-label">Latitude</label>
+                                        <input type="text" id="Latitude" name="Latitude" class="form-control" value="@location.latitude" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" id="btnOpenSaveConfirm-@location.Id" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal for Update (Dynamic ID based on Location ID) -->
+    <div class="modal fade" id="saveConfirmModal-@location.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Update location <strong>@location.locationName</strong>?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="btnConfirmSave-@location.Id" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="btnCancelSave-@location.Id" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create Location Modal -->
+<div class="modal fade" id="createLocationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="createLocationContent">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Location</h5>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" method="post" id="UpdateLocationForm">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="Name" class="form-label">Name</label>
+                                <input type="text" id="Name" name="Name" class="form-control" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="Longitude" class="form-label">Longitude</label>
+                                    <input type="text" id="Longitude" name="Longitude" class="form-control" value="0.0" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="Latitude" class="form-label">Latitude</label>
+                                    <input type="text" id="Latitude" name="Latitude" class="form-control" value="0.0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <button type="button" id="btnOpenSaveConfirm" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Location?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4 text-danger">Error: Location already exist.</h5>
+            <div class="d-flex justify-content-end">
+                <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Location?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ---------- CREATE LOCATION ----------
+        document.addEventListener("DOMContentLoaded", function () {
+            const createLocationModalEl = document.getElementById('createLocationModal');
+            const saveConfirmModalEl = document.getElementById('saveConfirmModal');
+            const verificationModalEl = document.getElementById('verificationModal');
+            const createLocationContent = document.getElementById('createLocationContent');
+
+            const createLocationModal = new bootstrap.Modal(createLocationModalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            const verificationModal = new bootstrap.Modal(verificationModalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            // Save in Create Modal
+            document.getElementById('btnOpenSaveConfirm').addEventListener('click', function () {
+                const name = document.getElementById('Name').value.trim();
+
+                // Example verification logic
+                if (name === "1") {
+                    createLocationContent.classList.add("modal-dimmed");
+                    verificationModal.show();
+                } else {
+                    createLocationModal.hide();
+                    saveConfirmModal.show();
+                }
+            });
+
+            // Confirm Save in Save Confirmation
+            document.getElementById('btnConfirmSave').addEventListener('click', function () {
+                saveConfirmModal.hide();
+                createLocationModal.show(); // maintain consistent behavior
+                console.log("Location saved.");
+            });
+
+            // Cancel Save in Save Confirmation
+            document.getElementById('btnCancelSave').addEventListener('click', function () {
+                saveConfirmModal.hide();
+                createLocationModal.show();
+            });
+
+            // Verification OK
+            document.getElementById('verificationOkBtn').addEventListener('click', function () {
+                verificationModal.hide();
+                createLocationContent.classList.remove("modal-dimmed");
+            });
+        });
+
+
+        // ---------- UPDATE LOCATION ----------
+        document.addEventListener("DOMContentLoaded", function () {
+            const updateModals = document.querySelectorAll("[id^='updateLocationModal-']");
+            updateModals.forEach(modalEl => {
+                const modalId = modalEl.id.split('-')[1];
+                const saveBtn = document.getElementById(`btnOpenSaveConfirm-${modalId}`);
+                const saveConfirmModalEl = document.getElementById(`saveConfirmModal-${modalId}`);
+
+                const updateModal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                // Save in Update Modal
+                saveBtn.addEventListener("click", function () {
+                    updateModal.hide();
+                    saveConfirmModal.show();
+                });
+
+                // Confirm Save in Save Confirmation
+                document.getElementById(`btnConfirmSave-${modalId}`).addEventListener("click", function () {
+                    saveConfirmModal.hide();
+                    updateModal.show(); // same consistent modal logic
+                    console.log(`Location ${modalId} updated.`);
+                });
+
+                // Cancel Save in Save Confirmation
+                document.getElementById(`btnCancelSave-${modalId}`).addEventListener("click", function () {
+                    saveConfirmModal.hide();
+                    updateModal.show();
+                });
+            });
+        });
+    </script>

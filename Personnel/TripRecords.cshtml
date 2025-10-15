@@ -1,0 +1,295 @@
+﻿<style>
+    .modal-header {
+        background-color: #2e3b3e;
+        color: white;
+        border-bottom: none;
+    }
+
+    .btn-close-custom {
+        background-color: transparent;
+        border: 1px solid white;
+        border-radius: 3px;
+        color: white;
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 22px;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-close-custom:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+    .nav-tabs .nav-link {
+        border: 1px solid #dee2e6;
+        border-bottom: none;
+        color: #000;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+        .nav-tabs .nav-link.active {
+            color: #1cb5bd;
+            border-bottom: 3px solid #1cb5bd;
+        }
+
+    .tab-content {
+        border: 1px solid #dee2e6;
+        border-top: none;
+        padding: 20px;
+    }
+
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+    }
+
+    .info-label {
+        font-weight: 600;
+        width: 120px;
+    }
+
+    .modal-body {
+        padding: 0;
+    }
+
+    .tab-pane {
+        padding-top: 10px;
+    }
+
+    .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-top: 10px !important;
+    }
+
+    .container.mt-3 {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Align tables properly inside modal */
+    .table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+</style>
+
+<div class="head-title">
+    <div class="left">
+        <h1>Personnel</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Personnel</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Personnel">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Trip Records</a></li> @* TripRecords *@
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Trip Records</h5></asp:Label>
+        @* <button class="btn btn-primary btn-sm">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Assign Shift</span>
+        </button> *@
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.TripRecords>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="TripRecords" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                # <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="TripRecords" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                Driver <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>Bus</th>
+                    <th>Route</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            @* <td>@(i+1)</td> *@
+                            <td>@Model[i].Id</td>
+                            <td>@Model[i].DriverName </td>
+                            <td>@Model[i].BusPlateNumber </td>
+                            <td>@Model[i].RouteName </td>
+                            <td>@Model[i].StartTime </td>
+                            <td>@Model[i].EndTime  </td>
+                            <td>@Model[i].Status  </td>
+                            <td>@Model[i].Remarks </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" @* data-bs-toggle="modal" data-bs-target="#editScheduleModal-@Model[i].Id" *@>
+                                    <i class='bx bxs-search'></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm"><i class='bx bx-food-tag'></i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="10" style="text-align: center;">No trip available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+<!-- Trip Details Modal -->
+@* <div class="modal fade" id="editScheduleModal-@Model[i].Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header d-flex justify-content-between align-items-center px-4">
+                <h5 class="modal-title">Trip Details</h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">×</button>
+            </div>
+
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="tripDetailsTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="trip-info-tab" data-bs-toggle="tab" data-bs-target="#trip-info" type="button" role="tab">Trip Info</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="stop-logs-tab" data-bs-toggle="tab" data-bs-target="#stop-logs" type="button" role="tab">Stop Logs</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="incidents-tab" data-bs-toggle="tab" data-bs-target="#incidents" type="button" role="tab">Incidents</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="tripDetailsTabContent">
+                    <!-- Trip Info Tab -->
+                    <div class="tab-pane fade show active" id="trip-info" role="tabpanel">
+                        <div class="container mt-3">
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Driver:</div>
+                                <div class="col">@Model[i].DriverName</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Bus:</div>
+                                <div class="col">@Model[i].BusPlateNumber</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Route:</div>
+                                <div class="col">@Model[i].RouteName</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Shift:</div>
+                                <div class="col">@Model[i].ShiftTime</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Status:</div>
+                                <div class="col">@Model[i].Status</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Duration:</div>
+                                <div class="col">@Model[i].Duration</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-3 info-label">Remarks:</div>
+                                <div class="col">@Model[i].Remarks</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stop Logs Tab -->
+                    <div class="tab-pane fade" id="stop-logs" role="tabpanel">
+                        <div class="table-responsive mt-1">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Stop</th>
+                                        <th>Arrival</th>
+                                        <th>Departure</th>
+                                        <th>Status</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var stop in Model[i].StopLogs)
+                                    {
+                                        <tr>
+                                            <td>@stop.StopName</td>
+                                            <td>@stop.ArrivalTime</td>
+                                            <td>@stop.DepartureTime</td>
+                                            <td>@stop.Status</td>
+                                            <td>@stop.Remarks</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Incidents Tab -->
+                    <div class="tab-pane fade" id="incidents" role="tabpanel">
+                        <div class="table-responsive mt-1">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Reported At</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var incident in Model[i].Incidents)
+                                    {
+                                        <tr>
+                                            <td>@incident.Type</td>
+                                            <td>@incident.Status</td>
+                                            <td>@incident.ReportedAt</td>
+                                            <td>@incident.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div> *@

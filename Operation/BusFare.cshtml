@@ -1,0 +1,201 @@
+﻿<style>
+    .modal-header {
+        background-color: #263238;
+        color: #fff;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-size: 1.75rem;
+    }
+
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .input-group-text {
+        background-color: #fff;
+        font-size: 1.25rem;
+    }
+
+    /* Button Styles */
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .modal-body {
+        padding-top: 20px;
+    }
+</style>
+<div class="head-title">
+    <div class="left">
+        <h1>Operations</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Operations</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Bus Fare</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    @* <div class="datalbl">
+        <asp:Label> <h5>Bus Fare</h5></asp:Label>
+    </div> *@
+
+    @model List<NextStop_AdminMVC.Models.DataModels.BusFare>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fare per Ride</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model[i].fareAmount</td>
+                            <td>@Model[i].lastUpdated</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editBusFareModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No fare set.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+<!-- Bus Fare Modal -->
+@if (Model != null && Model.Count > 0)
+{
+        @foreach (var fare in Model)
+        {
+            <!-- Unique Modal per Fare -->
+        <div class="modal fade" id="editBusFareModal-@fare.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Bus Fare</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="BusFare-@fare.Id">Bus Fare</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    <input type="number" step="0.01" min="0" class="form-control"
+                                           id="BusFare-@fare.Id"
+                                           value="@fare.fareAmount.ToString("F2")"
+                                           placeholder="0.00" oninput="validateDecimal(this)">
+                                </div>
+                            </div>
+
+                            <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-save text-white px-4 save-btn" id="saveBtn">Save</button>
+                                <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+}
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Bus Fare?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-save text-white px-4" id="confirmSaveBtn">Save</button>
+                <button type="button" class="btn btn-outline-save px-4" id="cancelSaveBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const saveConfirmationModal = new bootstrap.Modal(
+                document.getElementById('saveConfirmationModal'),
+                { backdrop: 'static', keyboard: false }
+            );
+
+            let activeFareModal = null;
+
+            // Save button in Update modal
+            document.querySelectorAll(".save-btn").forEach(btn => {
+                btn.addEventListener("click", e => {
+                    const modalEl = e.target.closest(".modal");
+                    activeFareModal = bootstrap.Modal.getInstance(modalEl);
+                    activeFareModal.hide();
+                    saveConfirmationModal.show();
+                });
+            });
+
+            // Confirm Save button
+            document.getElementById("confirmSaveBtn").addEventListener("click", () => {
+                saveConfirmationModal.hide();
+                console.log("Bus fare saved!");
+                if (activeFareModal) activeFareModal.show();
+            });
+
+            // Cancel button in Save Confirmation
+            document.getElementById("cancelSaveBtn").addEventListener("click", () => {
+                saveConfirmationModal.hide();
+                if (activeFareModal) activeFareModal.show();
+            });
+        });
+
+        // Restrict input to numbers and decimals
+        function validateDecimal(input) {
+            const val = input.value;
+            if (!/^\d*\.?\d*$/.test(val)) input.value = val.slice(0, -1);
+        }
+    </script>
+

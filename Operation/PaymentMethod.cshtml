@@ -1,0 +1,463 @@
+﻿<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .modal-content {
+        border-radius: 6px;
+        border: none;
+    }
+
+    .modal-header {
+        background-color: #2f3b3e;
+        color: #fff;
+        border-bottom: none;
+        padding: 20px 24px;
+    }
+
+    .modal-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    textarea.form-control {
+        resize: none;
+        height: 120px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    /* Dimmed modal */
+    .dimmed {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+<div class="head-title">
+    <div class="left">
+        <h1>Operations</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Operations</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Payment Method</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+
+    <div class="datalbl">
+        <asp:Label> <h5>Payment Method</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#paymentMethodModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Add payment method</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.PaymentMethod>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                    <th>Display description</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@Model[i].paymentMethodName</td>
+                            <td>@Model[i].description</td>
+                            <td>@Model[i].displayDesc</td>
+                            <td>@Model[i].Status</td>
+                            <td>@Model[i].lastUpdated</td>
+                            <td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#UpdatepaymentMethodModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No payment method available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+@foreach (var pay in Model)
+{
+    <div class="modal fade" id="UpdatepaymentMethodModal-@pay.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Payment Method</h5>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <form id="paymentMethodForm-@pay.Id" asp-action="SavePaymentMethod" method="post">
+                        <!-- Payment Method Name -->
+                        <div class="mb-3">
+                            <label for="PaymentMethodName-@pay.Id" class="form-label">Payment Method Name</label>
+                            <input type="text" id="PaymentMethodName-@pay.Id" name="PaymentMethodName" class="form-control" value="@pay.paymentMethodName">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="Description-@pay.Id" class="form-label mb-0">Description</label>
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input me-2" type="checkbox" id="DisplayDescription-@pay.Id" name="DisplayDescription" @(pay.displayDesc == "Yes" ? "checked" : "")>
+                                    <label class="form-check-label" for="DisplayDescription-@pay.Id">Display Description</label>
+                                </div>
+                            </div>
+                            <textarea id="Description-@pay.Id" name="Description" class="form-control">@pay.description</textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <label for="Status-@pay.Id" class="form-label">Status:</label>
+                            <div class="form-check form-switch d-inline-block ms-2">
+                                <input class="form-check-input" type="checkbox" id="Status-@pay.Id" name="Status" @(pay.Status == "Active" ? "checked" : "")>
+                                <label class="form-check-label" for="Status-@pay.Id">Active</label>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" id="openSaveConfirm-@pay.Id" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal for Update -->
+    <div class="modal fade" id="saveConfirmModal-@pay.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Payment Method?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" id="confirmSaveBtn-@pay.Id" class="btn btn-save text-white px-4">Save</button>
+                    <button type="button" id="confirmCancelBtn-@pay.Id" class="btn btn-outline-save px-4">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal for Update -->
+    <div class="modal fade" id="verificationModal-@pay.Id" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4 text-danger">Error: Payment Method already exists.</h5>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="verificationOkBtn-@pay.Id" class="btn btn-outline-save px-4">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Payment Method Modal -->
+<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Payment Method</h5>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <form id="paymentMethodForm" asp-action="SavePaymentMethod" method="post">
+                    <!-- Payment Method Name -->
+                    <div class="mb-3">
+                        <label for="PaymentMethodName" class="form-label">Payment Method Name</label>
+                        <input type="text" id="PaymentMethodName" name="PaymentMethodName" class="form-control">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="Description" class="form-label mb-0">Description</label>
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input me-2" type="checkbox" id="DisplayDescription" name="DisplayDescription">
+                                <label class="form-check-label" for="DisplayDescription">Display Description</label>
+                            </div>
+                        </div>
+                        <textarea id="Description" name="Description" class="form-control"></textarea>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-4">
+                        <label for="Status" class="form-label">Status:</label>
+                        <div class="form-check form-switch d-inline-block ms-2">
+                            <input class="form-check-input" type="checkbox" id="Status" name="Status" checked>
+                            <label class="form-check-label" for="Status">Active</label>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" id="openSaveConfirm" class="btn btn-save text-white px-4">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true"">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Payment Method?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" id="confirmSaveBtn" class="btn btn-save text-white px-4">Save</button>
+                <button type="button" id="confirmCancelBtn" class="btn btn-outline-save px-4">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4 text-danger">Error: Payment Method already exists.</h5>
+            <div class="d-flex justify-content-end">
+                <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Payment Method?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ---------------- CREATE PAYMENT METHOD ----------------
+        document.addEventListener("DOMContentLoaded", function () {
+            const paymentMethodModalEl = document.getElementById("paymentMethodModal");
+            const saveConfirmModalEl = document.getElementById("saveConfirmModal");
+            const verificationModalEl = document.getElementById("verificationModal");
+
+            // Force static backdrop even if user clicks background
+            paymentMethodModalEl.setAttribute("data-bs-backdrop", "static");
+            paymentMethodModalEl.setAttribute("data-bs-keyboard", "false");
+            saveConfirmModalEl.setAttribute("data-bs-backdrop", "static");
+            saveConfirmModalEl.setAttribute("data-bs-keyboard", "false");
+            verificationModalEl.setAttribute("data-bs-backdrop", "static");
+            verificationModalEl.setAttribute("data-bs-keyboard", "false");
+
+            const paymentMethodModal = new bootstrap.Modal(paymentMethodModalEl, { backdrop: "static", keyboard: false });
+            const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, { backdrop: "static", keyboard: false });
+            const verificationModal = new bootstrap.Modal(verificationModalEl, { backdrop: "static", keyboard: false });
+
+            const openSaveConfirmBtn = document.getElementById("openSaveConfirm");
+            const confirmSaveBtn = document.getElementById("confirmSaveBtn");
+            const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+            const verificationOkBtn = document.getElementById("verificationOkBtn");
+            const paymentMethodNameInput = document.getElementById("PaymentMethodName");
+
+            // Prevent closing via backdrop manually
+            paymentMethodModalEl.addEventListener("click", e => e.stopPropagation());
+            saveConfirmModalEl.addEventListener("click", e => e.stopPropagation());
+            verificationModalEl.addEventListener("click", e => e.stopPropagation());
+
+            // Save button in Create modal
+            openSaveConfirmBtn.addEventListener("click", function () {
+                const name = paymentMethodNameInput.value.trim();
+                if (name === ".") {
+                    paymentMethodModalEl.classList.add("dimmed");
+                    verificationModal.show();
+                } else {
+                    paymentMethodModal.hide();
+                    saveConfirmModal.show();
+                }
+            });
+
+            // Confirm Save
+            confirmSaveBtn.addEventListener("click", function () {
+                saveConfirmModal.hide();
+                paymentMethodModal.show();
+                console.log("Payment method saved.");
+            });
+
+            // Cancel in Save Confirmation
+            confirmCancelBtn.addEventListener("click", function () {
+                saveConfirmModal.hide();
+                paymentMethodModal.show();
+            });
+
+            // Verification OK
+            verificationOkBtn.addEventListener("click", function () {
+                verificationModal.hide();
+                paymentMethodModalEl.classList.remove("dimmed");
+            });
+        });
+
+
+        // ---------------- UPDATE PAYMENT METHOD ----------------
+        document.addEventListener("DOMContentLoaded", function () {
+            const updateModals = document.querySelectorAll("[id^='UpdatepaymentMethodModal-']");
+
+            updateModals.forEach(modalEl => {
+                const modalId = modalEl.id.split("-")[1];
+                const saveBtn = document.getElementById(`openSaveConfirm-${modalId}`);
+                const saveConfirmModalEl = document.getElementById(`saveConfirmModal-${modalId}`);
+                const verificationModalEl = document.getElementById(`verificationModal-${modalId}`);
+
+                modalEl.setAttribute("data-bs-backdrop", "static");
+                modalEl.setAttribute("data-bs-keyboard", "false");
+                saveConfirmModalEl.setAttribute("data-bs-backdrop", "static");
+                saveConfirmModalEl.setAttribute("data-bs-keyboard", "false");
+                verificationModalEl.setAttribute("data-bs-backdrop", "static");
+                verificationModalEl.setAttribute("data-bs-keyboard", "false");
+
+                const updateModal = new bootstrap.Modal(modalEl, { backdrop: "static", keyboard: false });
+                const saveConfirmModal = new bootstrap.Modal(saveConfirmModalEl, { backdrop: "static", keyboard: false });
+                const verificationModal = new bootstrap.Modal(verificationModalEl, { backdrop: "static", keyboard: false });
+
+                const confirmSaveBtn = document.getElementById(`confirmSaveBtn-${modalId}`);
+                const confirmCancelBtn = document.getElementById(`confirmCancelBtn-${modalId}`);
+                const verificationOkBtn = document.getElementById(`verificationOkBtn-${modalId}`);
+                const paymentMethodInput = document.getElementById(`PaymentMethodName-${modalId}`);
+
+                modalEl.addEventListener("click", e => e.stopPropagation());
+                saveConfirmModalEl.addEventListener("click", e => e.stopPropagation());
+                verificationModalEl.addEventListener("click", e => e.stopPropagation());
+
+                // Save button in Update modal
+                saveBtn.addEventListener("click", function () {
+                    const name = paymentMethodInput.value.trim();
+                    if (name === ".") {
+                        modalEl.classList.add("dimmed");
+                        verificationModal.show();
+                    } else {
+                        updateModal.hide();
+                        saveConfirmModal.show();
+                    }
+                });
+
+                // Confirm Save
+                confirmSaveBtn.addEventListener("click", function () {
+                    saveConfirmModal.hide();
+                    updateModal.show();
+                    console.log(`Payment Method ${modalId} updated.`);
+                });
+
+                // Cancel in Save Confirmation
+                confirmCancelBtn.addEventListener("click", function () {
+                    saveConfirmModal.hide();
+                    updateModal.show();
+                });
+
+                // Verification OK
+                verificationOkBtn.addEventListener("click", function () {
+                    verificationModal.hide();
+                    modalEl.classList.remove("dimmed");
+                });
+            });
+        });
+
+
+        // ---------------- DELETE PAYMENT METHOD ----------------
+        document.addEventListener("DOMContentLoaded", function () {
+            const deleteConfirmModalEl = document.getElementById("deleteConfirmModal");
+
+            // Prevent accidental closing or backdrop click
+            deleteConfirmModalEl.setAttribute("data-bs-backdrop", "static");
+            deleteConfirmModalEl.setAttribute("data-bs-keyboard", "false");
+            deleteConfirmModalEl.addEventListener("click", e => e.stopPropagation());
+
+            const deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalEl, {
+                backdrop: "static",
+                keyboard: false
+            });
+        });
+    </script>
+

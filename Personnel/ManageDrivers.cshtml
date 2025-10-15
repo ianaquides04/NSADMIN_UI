@@ -1,0 +1,448 @@
+﻿<style>
+    .custom-header {
+        background-color: #283233;
+        color: #fff;
+    }
+
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .form-control, .form-select {
+        border-radius: 4px;
+        height: 45px;
+    }
+
+    .radio-box {
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        padding: 12px 15px;
+    }
+
+    .radio-label {
+        margin-left: 8px;
+    }
+
+    .modal-content {
+        border-radius: 6px;
+    }
+
+    /* === Dim Effect === */
+    .modal.dimmed .modal-content {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+
+<div class="head-title">
+    <div class="left">
+        <h1>Personnel</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Personnel</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Personnel">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Manage Drivers</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Driver List</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#driverModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Add Driver</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.Drivers>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="ManageDrivers" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                # <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="ManageDrivers" asp-route-sortOrder="@ViewData["FNameSort"]">
+                                First Name <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="ManageDrivers" asp-route-sortOrder="@ViewData["LNameSort"]">
+                                Last Name <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>License #</th>
+                    <th>License Type</th>
+                    <th>Contact #</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model[i].Id</td>
+                            <td>@Model[i].FirstName</td>
+                            <td>@Model[i].LastName</td>
+                            <td>@Model[i].LicenseNum</td>
+                            <td>@Model[i].LicenseType</td>
+                            <td>@Model[i].ContactNum</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#UpdatedriverModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No driver available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+<!-- Update Driver Modal -->
+@foreach (var driver in Model)
+{
+    <div class="modal fade" id="UpdatedriverModal-@driver.Id" tabindex="-1" aria-labelledby="UpdatedriverModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header custom-header">
+                    <h3 class="modal-title">Update Driver</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form id="driverForm-@driver.Id">
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" value="@driver.FirstName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" value="@driver.LastName" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">License Number</label>
+                                <input type="text" class="form-control" value="@driver.LicenseNum" />
+
+                                <label class="form-label">Contact Number</label>
+                                <input type="text" class="form-control" value="@driver.ContactNum" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">License Type</label>
+                                <div class="radio-box mt-1">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="licenseType-@driver.Id" id="pro-@driver.Id" @if(driver.LicenseType == "Pro") {
+                                        <text>checked</text>
+                                    }
+>
+                                    <label class="form-check-label radio-label" for="pro-@driver.Id">Pro</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="licenseType-@driver.Id" id="nonpro-@driver.Id" @if(driver.LicenseType == "Non-Pro") {
+                                    <text>checked</text>
+                                                                        }
+>
+                                    <label class="form-check-label radio-label" for="nonpro-@driver.Id">Non-Pro</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <div class="d-flex justify-content-end gap-3 mt-4">
+                            <button type="button" id="saveBtn-@driver.Id" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Confirmation Modal for each driver -->
+<div class="modal fade" id="saveConfirmModal-@driver.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Driver?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" id="btnConfirmSave-@driver.Id" class="btn btn-save text-white px-4">Save</button>
+                <button type="button" id="btnCancelSave-@driver.Id" class="btn btn-outline-save px-4">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Driver Modal -->
+<div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header custom-header">
+                <h3 class="modal-title">Create Driver</h3>
+            </div>
+
+            <div class="modal-body">
+                <form id="driverForm">
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">License Number</label>
+                            <input type="text" id="licenseInput" class="form-control mb-3" />
+
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">License Type</label>
+                            <div class="radio-box mt-1">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="licenseType" id="pro">
+                                    <label class="form-check-label radio-label" for="pro">Pro</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="licenseType" id="nonpro">
+                                    <label class="form-check-label radio-label" for="nonpro">Non-Pro</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <div class="d-flex justify-content-end gap-3 mt-4">
+                            <button type="button" id="saveBtn" class="btn btn-save text-white px-4">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Driver?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" id="btnConfirmSave" class="btn btn-save text-white px-4">Save</button>
+                <button type="button" id="btnCancelSave" class="btn btn-outline-save px-4">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4 text-danger">Error: License Number already exists.</h5>
+            <div class="d-flex justify-content-end">
+                <button type="button" id="verificationOkBtn" class="btn btn-outline-save px-4">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Driver?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" form="createRouteForm" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ===== ADD DRIVER =====
+        const driverModalEl = document.getElementById('driverModal');
+        const driverModal = new bootstrap.Modal(driverModalEl, { backdrop: 'static', keyboard: false });
+        const saveConfirmModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'), { backdrop: 'static', keyboard: false });
+        const verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'), { backdrop: 'static', keyboard: false });
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const licenseValue = document.getElementById('licenseInput').value.trim();
+
+            if (licenseValue === '.') {
+                driverModalEl.classList.add('dimmed');
+                verificationModal.show();
+            } else {
+                driverModal.hide();
+                driverModalEl.addEventListener('hidden.bs.modal', () => {
+                    saveConfirmModal.show();
+                }, { once: true });
+            }
+        });
+
+        document.getElementById('btnConfirmSave').addEventListener('click', () => {
+            saveConfirmModal.hide();
+            driverModal.show();
+        });
+
+        document.getElementById('btnCancelSave').addEventListener('click', () => {
+            saveConfirmModal.hide();
+            driverModal.show();
+        });
+
+        document.getElementById('verificationOkBtn').addEventListener('click', () => {
+            verificationModal.hide();
+            driverModalEl.classList.remove('dimmed');
+        });
+
+
+
+        // ===== UPDATE DRIVER =====
+        document.querySelectorAll('[id^="UpdatedriverModal-"]').forEach(modalEl => {
+            const id = modalEl.id.split('-')[1];
+            const updateModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+            const confirmModalEl = document.getElementById('saveConfirmModal-' + id);
+            const confirmModal = new bootstrap.Modal(confirmModalEl, { backdrop: 'static', keyboard: false });
+
+            const btnSave = document.getElementById('saveBtn-' + id);
+            const btnCancel = modalEl.querySelector('[data-bs-dismiss="modal"]');
+            const btnConfirmSave = document.getElementById('btnConfirmSave-' + id);
+            const btnCancelSave = document.getElementById('btnCancelSave-' + id);
+
+            if (btnSave) {
+                btnSave.addEventListener('click', () => {
+                    updateModal.hide();
+                    modalEl.addEventListener('hidden.bs.modal', () => {
+                        confirmModal.show();
+                    }, { once: true });
+                });
+            }
+
+            if (btnConfirmSave) {
+                btnConfirmSave.addEventListener('click', () => {
+                    confirmModal.hide();
+                    updateModal.show();
+                });
+            }
+
+            if (btnCancelSave) {
+                btnCancelSave.addEventListener('click', () => {
+                    confirmModal.hide();
+                    updateModal.show();
+                });
+            }
+
+            if (btnCancel) {
+                btnCancel.addEventListener('click', () => {
+                    updateModal.hide();
+                });
+            }
+        });
+
+
+
+        // ===== DELETE DRIVER =====
+        const deleteModalEl = document.getElementById('deleteConfirmModal');
+        if (deleteModalEl) {
+            new bootstrap.Modal(deleteModalEl, { backdrop: 'static', keyboard: false });
+        }
+
+    });
+</script>
+

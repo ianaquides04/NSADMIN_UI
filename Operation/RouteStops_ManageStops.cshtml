@@ -1,0 +1,436 @@
+﻿
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .modal-header {
+        background-color: #2f3b3e;
+        color: #fff;
+    }
+
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+<div id="mainContent">
+    <div class="head-title">
+        <div class="left">
+            <h1>Operations</h1>
+            <ul class="breadcrumb">
+                <li><a href="#">Operations</a></li>
+                <li><i class='bx bx-chevron-right'></i></li>
+                <li><a class="active2" asp-controller="Operation" asp-action="Operations">Home</a></li>
+                <li><i class='bx bx-chevron-right'></i></li>
+                <li><a class="active2" asp-controller="Operation" asp-action="RouteStops">Routes & Stops</a></li>
+                <li><i class='bx bx-chevron-right'></i></li>
+                <li><a class="active1" href="#">Manage Stops - @ViewBag.RouteName</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="margin: 20px;">
+        <div class="datalbl">
+            <asp:Label> <h5>@ViewBag.RouteName - Stops</h5></asp:Label>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStopModal">
+                <i class='bx bx-add-to-queue'></i>
+                <span>Add Stop</span>
+            </button>
+        </div>
+
+        @model List<NextStop_AdminMVC.Models.DataModels.BusStops>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <button class="sortbtn">
+                                <a class="sortlbl" asp-action="RouteStops_ManageStops" asp-route-sortOrder="@ViewData["IndexSort"]" asp-route-routeName="@ViewBag.RouteName">
+                                    Order <i class='bx bxs-sort-alt'></i>
+                                </a>
+                            </button>
+                        </th>
+                        <th>
+                            <button class="sortbtn">
+                                <a class="sortlbl" asp-action="RouteStops_ManageStops" asp-route-sortOrder="@ViewData["NameSort"]" asp-route-routeName="@ViewBag.RouteName">
+                                    Name <i class='bx bxs-sort-alt'></i>
+                                </a>
+                            </button>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                @{
+                    string visibility = "visible";
+                    bool hasMatchingRoute = false;
+                }
+
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        if (item.routeName == (string)ViewBag.RouteName)
+                        {
+                            hasMatchingRoute = true;
+                            break;
+                        }
+                    }
+                }
+
+                @if (hasMatchingRoute)
+                {
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            if (Model[i].routeName == (string)ViewBag.RouteName)
+                            {
+                                <tr id="stop-@Model[i].Id">
+                                    <td>@Model[i].sequenceOrder</td>
+                                    <td>@Model[i].stopName</td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm"><i class='bx bxs-up-arrow' onclick="moveUp(@Model[i].Id)"></i></button>
+                                        <button class="btn btn-success btn-sm"><i class='bx bxs-down-arrow' onclick="moveDown(@Model[i].Id)"></i></button>
+                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#UpdateStopModal-@Model[i].Id">
+                                            <i class='bx bxs-edit'></i>
+                                        </button>
+
+                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                            <i class='bx bxs-x-square'></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">No stops available.</td>
+                            @{visibility = "hidden";}
+                        </tr>
+                    </tbody>
+                }
+
+            </table>
+
+            <div class="endbtn" style="visibility: @visibility">
+                <button type="submit" class="btn btn-success" onclick=" saveNewOrder()">
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var stop in Model)
+{
+    <!-- Update Stop Modal -->
+    <div class="modal fade" id="UpdateStopModal-@stop.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Stop - @stop.stopName</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="updateStopForm-@stop.Id" asp-action="UpdateStop" method="post">
+                        <input type="hidden" name="Id" value="@stop.Id" />
+                        <div class="mb-3">
+                            <label for="Location-@stop.Id" class="form-label">Select Location</label>
+                            <select id="Location-@stop.Id" name="Location" class="form-select">
+                                <option selected>@stop.stopName</option>
+                                <option>McKinley Parkway</option>
+                                <option>Nutrisia</option>
+                                <option>One Parkade</option>
+                                <option>University Parkway</option>
+                                <option>Arca South</option>
+                                <option>MECC</option>
+                                <option>Makati Stock Exchange</option>
+                                <option>PBCOM</option>
+                                <option>RCBC</option>
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="Order-@stop.Id" class="form-label">Order</label>
+                                <input type="number" id="Order-@stop.Id" name="Order" class="form-control" min="1" value="@stop.sequenceOrder">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="Route-@stop.Id" class="form-label">Route</label>
+                                <input type="text" id="Route-@stop.Id" name="Route" class="form-control" value="@stop.routeName" readonly>
+                            </div>
+                        </div>
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-save text-white px-4" id="openUpdateConfirmBtn-@stop.Id">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Confirmation Modal -->
+    <div class="modal fade" id="updateConfirmModal-@stop.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save changes to @stop.stopName?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-save text-white px-4" id="confirmUpdateSaveBtn-@stop.Id">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="cancelUpdateConfirmBtn-@stop.Id">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Add Stop Modal -->
+<div class="modal fade" id="addStopModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Stop</h5>
+            </div>
+            <div class="modal-body">
+                <form id="addStopForm" asp-action="CreateStop" method="post">
+                    <div class="mb-3">
+                        <label for="Location" class="form-label">Select Location</label>
+                        <select id="Location" name="Location" class="form-select">
+                            <option selected>--Select--</option>
+                            <option>McKinley Parkway</option>
+                            <option>Nutrisia</option>
+                            <option>One Parkade</option>
+                            <option>University Parkway</option>
+                            <option>Arca South</option>
+                            <option>MECC</option>
+                            <option>Makati Stock Exchange</option>
+                            <option>PBCOM</option>
+                            <option>RCBC</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="Order" class="form-label">Order</label>
+                            <input type="number" id="Order" name="Order" class="form-control" min="1" value="1">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="Route" class="form-label">Route</label>
+                            <input type="text" id="Route" name="Route" class="form-control" value="@ViewBag.RouteName" readonly>
+                        </div>
+                    </div>
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-save text-white px-4" id="openAddConfirmationBtn">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Confirmation Modal -->
+<div class="modal fade" id="saveConfirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Save Stop?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-save text-white px-4" id="confirmAddSaveBtn">Save</button>
+                <button type="button" class="btn btn-outline-save px-4" id="cancelAddConfirmBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Stop?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-delete text-white px-4" id="confirmDeleteBtn">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+            const onBackButtonEvent = (e) => {
+
+        e.preventDefault();
+
+        var currentLocation = window.location.pathname;
+
+        history.push(`${currentLocation}/mypage/new`)
+
+        };
+
+        // Move a row up
+        function moveUp(id) {
+            let row = document.getElementById("stop-" + id);
+            let previousRow = row.previousElementSibling;
+
+            if (previousRow) {
+                row.parentNode.insertBefore(row, previousRow);
+            }
+        }
+
+        // Move a row down
+        function moveDown(id) {
+            let row = document.getElementById("stop-" + id);
+            let nextRow = row.nextElementSibling;
+
+            if (nextRow) {
+                row.parentNode.insertBefore(nextRow, row);
+            }
+        }
+
+        // Save the new order of rows to the server
+        function saveNewOrder() {
+            let rows = document.querySelectorAll("tbody tr");
+            let newOrder = [];
+
+            rows.forEach((row, index) => {
+                let id = row.id.replace("stop-", "");
+                newOrder.push({
+                    id: parseInt(id),
+                    order: index + 1
+                });
+            });
+
+            fetch('/Operation/UpdateStopOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // Add anti-forgery token here if needed
+                },
+                body: JSON.stringify(newOrder)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    alert("Error updating the order.");
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+    <script>
+        // --- ADD STOP MODAL LOGIC ---
+        const addStopModal = new bootstrap.Modal(document.getElementById('addStopModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        const saveConfirmationModal = new bootstrap.Modal(document.getElementById('saveConfirmationModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        // When Save in Add Modal is clicked → hide Add, show SaveConfirm
+        document.getElementById("openAddConfirmationBtn").addEventListener("click", function () {
+            addStopModal.hide();
+            saveConfirmationModal.show();
+        });
+
+        // When Cancel in SaveConfirm → hide SaveConfirm, show Add Modal
+        document.getElementById("cancelAddConfirmBtn").addEventListener("click", function () {
+            saveConfirmationModal.hide();
+            addStopModal.show();
+        });
+
+        // When SaveConfirm Save → hide SaveConfirm, show Add Modal, submit form
+        document.getElementById("confirmAddSaveBtn").addEventListener("click", function () {
+            saveConfirmationModal.hide();
+            document.getElementById("addStopForm").submit();
+        });
+
+
+        // --- UPDATE STOP MODALS LOGIC ---
+        document.querySelectorAll('[id^="openUpdateConfirmBtn-"]').forEach(button => {
+            button.addEventListener("click", function () {
+                const id = this.id.split('-')[1];
+                const updateModalEl = document.getElementById(`UpdateStopModal-${id}`);
+                const confirmModalEl = document.getElementById(`updateConfirmModal-${id}`);
+
+                const updateModal = bootstrap.Modal.getOrCreateInstance(updateModalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                const confirmModal = bootstrap.Modal.getOrCreateInstance(confirmModalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                // 1stModal Save clicked → hide Update, show SaveConfirm
+                updateModal.hide();
+                confirmModal.show();
+
+                // SaveConfirm Cancel clicked → hide SaveConfirm, reopen Update modal
+                document.getElementById(`cancelUpdateConfirmBtn-${id}`).onclick = function () {
+                    confirmModal.hide();
+                    updateModal.show();
+                };
+
+                // SaveConfirm Save clicked → hide SaveConfirm, submit form, reopen Update
+                document.getElementById(`confirmUpdateSaveBtn-${id}`).onclick = function () {
+                    confirmModal.hide();
+                    document.getElementById(`updateStopForm-${id}`).submit();
+                };
+            });
+        });
+</script>
+

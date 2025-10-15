@@ -1,0 +1,382 @@
+﻿@using NextStop_AdminMVC.Controllers.DataControllers
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .modal-header {
+        background-color: #283233;
+        color: #fff;
+    }
+    /* Button Styles */
+    .btn-save {
+        background-color: #1cb5bd !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-save:hover {
+            background-color: #15989f !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-save {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-save:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+
+    .time-input {
+        /* width: 60px; */
+        display: inline-block;
+        text-align: center;
+    }
+
+    .time-separator {
+        font-size: 1.2rem;
+        margin: 0 4px;
+        vertical-align: middle;
+    }
+    /* Container for Start and End time side by side with labels on top */
+    .time-container {
+        display: flex;
+        justify-content: space-evenly;
+        gap: 0px; /* Space between Start and End Time */
+    }
+
+        .time-container .time-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+    /* Optional: Adjust label spacing to make it closer to the input */
+    label.form-label {
+        margin-bottom: 5px; /* Reduce space between label and input */
+    }
+
+    .row.mb-3 .col-md-6 {
+        margin-bottom: 5px; /* Adjust to reduce space */
+    }
+
+    /* Make the Notes look like a textbox but maintain size */
+    .notes-textbox {
+        resize: none; /* Disable resizing */
+        min-height: 100px; /* Keep consistent size */
+    }
+    .btn-delete {
+        background-color: #ff4141 !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-delete:hover {
+            background-color: #e63936 !important;
+            color: #fff !important;
+        }
+
+    .btn-outline-delete {
+        color: #1cb5bd !important;
+        border: 1px solid #1cb5bd !important;
+        background-color: #fff !important;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+        .btn-outline-delete:hover {
+            background-color: #e6f7f8 !important;
+            color: #1cb5bd !important;
+        }
+</style>
+
+<div class="head-title">
+    <div class="left">
+        <h1>Personnel</h1>
+        <ul class="breadcrumb">
+            <li><a href="#">Personnel</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active2" asp-controller="Personnel" asp-action="Personnel">Home</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active1" href="#">Shift Management</a></li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px;">
+    <div class="datalbl">
+        <asp:Label> <h5>Shifts List</h5></asp:Label>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#shiftModal">
+            <i class='bx bx-add-to-queue'></i>
+            <span>Add Shift</span>
+        </button>
+    </div>
+
+    @model List<NextStop_AdminMVC.Models.DataModels.Shifts>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="Shifts" asp-route-sortOrder="@ViewData["IndexSort"]">
+                                # <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                   
+                    <th>Shift Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>
+                        <button class="sortbtn">
+                            <a class="sortlbl" asp-action="Shifts" asp-route-sortOrder="@ViewData["NameSort"]">
+                                Created by <i class='bx bxs-sort-alt'></i>
+                            </a>
+                        </button>
+                    </th>
+                    <th>Assignments</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            @* <td>@(i+1)</td> *@
+                            <td>@Model[i].Id</td>
+                            <td>@Model[i].shiftDate</td>
+                            <td>@Model[i].startTime</td>
+                            <td>@Model[i].endTime</td>
+                            <td>@Model[i].CreatedBy</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">
+                                    <a class="managelbl" asp-controller="Personnel" asp-action="ShiftAssignments" asp-route-shift="@Model[i].Id"
+                                       asp-route-shiftName="@ShiftsController.GetShiftName(Model[i].shiftDate, Model[i].startTime, Model[i].endTime)">
+                                        Manage
+                                    </a>
+                                </button>
+                            </td>
+                            <td>@Model[i].notes</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#EditshiftModal-@Model[i].Id">
+                                    <i class='bx bxs-edit'></i>
+                                </button>
+
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                    <i class='bx bxs-x-square'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="7" style="text-align: center;">No shifts available.</td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
+
+@foreach (var shift in Model)
+{
+    <form asp-action="UpdateShift" method="post" id="shiftForm-@shift.Id">
+        <div class="modal fade" id="EditshiftModal-@shift.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-md modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Shift</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Shift Date</label>
+                            <input type="date" name="ShiftDate" class="form-control" value="@shift.shiftDate" />
+                        </div>
+
+                        <div class="mb-3 time-container">
+                            <div class="time-input-wrapper">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" name="StartTime" class="form-control d-inline time-input" value="@shift.startTime" />
+                            </div>
+                            <div class="time-input-wrapper">
+                                <label class="form-label">End Time</label>
+                                <input type="time" name="EndTime" class="form-control d-inline time-input" value="@shift.endTime" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="Notes" class="form-control notes-textbox">@shift.notes</textarea>
+                        </div>
+
+                        <div class="text-end d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-save text-white px-4 btn-open-confirm" data-id="@shift.Id">Save</button>
+                            <button type="button" class="btn btn-outline-save px-4 btn-cancel" data-id="@shift.Id">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Confirmation Modal -->
+        <div class="modal fade" id="saveConfirmModal-@shift.Id" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+                <div class="modal-content p-4 text-start">
+                    <h5 class="mb-4">Save Shift?</h5>
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="submit" form="shiftForm-@shift.Id" class="btn btn-save text-white px-4 btn-confirm-save">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4 btn-confirm-cancel" data-id="@shift.Id">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+
+<form asp-action="CreateShift" method="post" id="createShiftForm">
+    <div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Shift</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Shift Date</label>
+                        <input type="date" name="ShiftDate" class="form-control" />
+                    </div>
+                    <div class="mb-3 time-container">
+                        <div class="time-input-wrapper">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="StartTime" class="form-control time-input" />
+                        </div>
+                        <div class="time-input-wrapper">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="EndTime" class="form-control time-input" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="Notes" class="form-control notes-textbox"></textarea>
+                    </div>
+                    <div class="text-end d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-save text-white px-4" id="btnAddOpenConfirm">Save</button>
+                        <button type="button" class="btn btn-outline-save px-4" id="btnAddCancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" id="saveConfirmModalAdd" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+            <div class="modal-content p-4 text-start">
+                <h5 class="mb-4">Save Shift?</h5>
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="submit" form="createShiftForm" class="btn btn-save text-white px-4" id="btnAddConfirmSave">Save</button>
+                    <button type="button" class="btn btn-outline-save px-4" id="btnAddConfirmCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content p-4 text-start">
+            <h5 class="mb-4">Delete Shift?</h5>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="submit" class="btn btn-delete text-white px-4">Delete</button>
+                <button type="button" class="btn btn-outline-delete px-4" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ===== ADD SHIFT =====
+        const addModalEl = document.getElementById('shiftModal');
+        const confirmAddModalEl = document.getElementById('saveConfirmModalAdd');
+
+        const addModal = new bootstrap.Modal(addModalEl, { backdrop: 'static', keyboard: false });
+        const confirmAddModal = new bootstrap.Modal(confirmAddModalEl, { backdrop: 'static', keyboard: false });
+
+        // Save clicked in Add modal
+        document.getElementById('btnAddOpenConfirm').addEventListener('click', () => {
+            addModal.hide();
+            confirmAddModal.show();
+        });
+
+        // Cancel clicked in Save Confirmation
+        document.getElementById('btnAddConfirmCancel').addEventListener('click', () => {
+            confirmAddModal.hide();
+            addModal.show();
+        });
+
+        // Cancel clicked in Add modal
+        document.getElementById('btnAddCancel').addEventListener('click', () => {
+            addModal.hide();
+        });
+
+
+
+        // ===== UPDATE SHIFT =====
+        document.querySelectorAll('[id^="EditshiftModal-"]').forEach((modalEl) => {
+            const id = modalEl.id.split('-')[1];
+            const editModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+            const confirmModalEl = document.getElementById('saveConfirmModal-' + id);
+            const confirmModal = new bootstrap.Modal(confirmModalEl, { backdrop: 'static', keyboard: false });
+
+            const btnSave = modalEl.querySelector('.btn-open-confirm');
+            const btnCancel = modalEl.querySelector('.btn-cancel');
+            const btnConfirmCancel = confirmModalEl.querySelector('.btn-confirm-cancel');
+
+            // Save clicked in Update modal
+            if (btnSave) {
+                btnSave.addEventListener('click', () => {
+                    editModal.hide();
+                    confirmModal.show();
+                });
+            }
+
+            // Cancel clicked in Save Confirmation
+            if (btnConfirmCancel) {
+                btnConfirmCancel.addEventListener('click', () => {
+                    confirmModal.hide();
+                    editModal.show();
+                });
+            }
+
+            // Cancel clicked in Update modal
+            if (btnCancel) {
+                btnCancel.addEventListener('click', () => {
+                    editModal.hide();
+                });
+            }
+        });
+
+    });
+</script>
+
+
